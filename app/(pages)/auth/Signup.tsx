@@ -7,7 +7,7 @@ import { useState } from 'react'
 import styled from 'styled-components'
 
 type AccountType = 'personal' | 'business'
-type Gender = 'male' | 'female' | 'other'
+type Gender = 'male' | 'female'
 
 interface DaumPostcodeResult {
   address: string
@@ -329,20 +329,15 @@ export default function SignUp() {
         </ChoiceButton>
       </ChoiceRow>
 
-      <Grid>
-        <InputField
-          type="text"
-          placeholder="이름"
-          value={form.name}
-          onChange={(e) => updateField('name', e.target.value)}
-        />
+      <FormStack>
+        <FieldLabel>생년월일</FieldLabel>
         <InputField
           type="date"
           placeholder="생년월일"
           value={form.birthDate}
           onChange={(e) => updateField('birthDate', e.target.value)}
         />
-      </Grid>
+      </FormStack>
 
       <SectionTitle>성별</SectionTitle>
       <RadioRow>
@@ -366,24 +361,7 @@ export default function SignUp() {
           />
           여성
         </label>
-        <label>
-          <input
-            type="radio"
-            name="gender"
-            value="other"
-            checked={form.gender === 'other'}
-            onChange={() => updateField('gender', 'other')}
-          />
-          기타
-        </label>
       </RadioRow>
-
-      <InputField
-        type="tel"
-        placeholder="전화번호"
-        value={form.phoneNumber}
-        onChange={(e) => updateField('phoneNumber', e.target.value)}
-      />
 
       <InlineField>
         <InputField type="text" placeholder="기본 배송지" value={form.address} readOnly />
@@ -392,59 +370,81 @@ export default function SignUp() {
         </ActionButton>
       </InlineField>
 
-      <InlineField>
+      <FormStack>
+        <FieldLabel>ID</FieldLabel>
+        <InlineField>
+          <InputField
+            type="text"
+            placeholder="아이디"
+            value={form.username}
+            onChange={(e) => updateField('username', e.target.value)}
+          />
+          <ActionButton type="button" onClick={handleCheckUsername} disabled={isCheckingUsername}>
+            {isCheckingUsername ? '확인 중' : '중복 확인'}
+          </ActionButton>
+        </InlineField>
+        {usernameMessage ? <HelperText $success={usernameAvailable}>{usernameMessage}</HelperText> : null}
+
+        <FieldLabel>비밀번호</FieldLabel>
+        <InputField
+          type="password"
+          placeholder="비밀번호"
+          value={form.password}
+          onChange={(e) => updateField('password', e.target.value)}
+        />
+        {form.password ? <HelperText $success={passwordLengthValid}>{passwordLengthMessage}</HelperText> : null}
+
+        <FieldLabel>비밀번호 확인</FieldLabel>
+        <InputField
+          type="password"
+          placeholder="비밀번호 확인"
+          value={form.confirmPassword}
+          onChange={(e) => updateField('confirmPassword', e.target.value)}
+        />
+        {form.confirmPassword ? <HelperText $success={passwordMatched}>{passwordMatchMessage}</HelperText> : null}
+
+        <FieldLabel>이름</FieldLabel>
         <InputField
           type="text"
-          placeholder="아이디"
-          value={form.username}
-          onChange={(e) => updateField('username', e.target.value)}
+          placeholder="이름"
+          value={form.name}
+          onChange={(e) => updateField('name', e.target.value)}
         />
-        <ActionButton type="button" onClick={handleCheckUsername} disabled={isCheckingUsername}>
-          {isCheckingUsername ? '확인 중' : '중복 확인'}
-        </ActionButton>
-      </InlineField>
-      {usernameMessage ? <HelperText $success={usernameAvailable}>{usernameMessage}</HelperText> : null}
 
-      <InlineField>
+        <FieldLabel>휴대폰 번호</FieldLabel>
         <InputField
-          type="email"
-          placeholder="이메일"
-          value={form.email}
-          onChange={(e) => updateField('email', e.target.value)}
+          type="tel"
+          placeholder="전화번호"
+          value={form.phoneNumber}
+          onChange={(e) => updateField('phoneNumber', e.target.value)}
         />
-        <ActionButton type="button" onClick={handleSendVerification} disabled={isSendingCode}>
-          {isSendingCode ? '전송 중' : '이메일 인증'}
-        </ActionButton>
-      </InlineField>
 
-      <InlineField>
-        <InputField
-          type="text"
-          placeholder="인증 코드 입력"
-          value={form.emailCode}
-          onChange={(e) => updateField('emailCode', e.target.value)}
-        />
-        <ActionButton type="button" onClick={handleVerifyEmail} disabled={isVerifyingEmail}>
-          {isVerifyingEmail ? '확인 중' : '인증 확인'}
-        </ActionButton>
-      </InlineField>
-      {emailMessage ? <HelperText $success={emailVerified}>{emailMessage}</HelperText> : null}
+        <FieldLabel>이메일 인증</FieldLabel>
+        <InlineField>
+          <InputField
+            type="email"
+            placeholder="이메일"
+            value={form.email}
+            onChange={(e) => updateField('email', e.target.value)}
+          />
+          <ActionButton type="button" onClick={handleSendVerification} disabled={isSendingCode}>
+            {isSendingCode ? '전송 중' : '인증 요청'}
+          </ActionButton>
+        </InlineField>
 
-      <InputField
-        type="password"
-        placeholder="비밀번호"
-        value={form.password}
-        onChange={(e) => updateField('password', e.target.value)}
-      />
-      {form.password ? <HelperText $success={passwordLengthValid}>{passwordLengthMessage}</HelperText> : null}
-
-      <InputField
-        type="password"
-        placeholder="비밀번호 확인"
-        value={form.confirmPassword}
-        onChange={(e) => updateField('confirmPassword', e.target.value)}
-      />
-      {form.confirmPassword ? <HelperText $success={passwordMatched}>{passwordMatchMessage}</HelperText> : null}
+        <InlineField>
+          <InputField
+            type="text"
+            placeholder="인증 코드 입력"
+            value={form.emailCode}
+            onChange={(e) => updateField('emailCode', e.target.value)}
+          />
+          <ActionButton type="button" onClick={handleVerifyEmail} disabled={isVerifyingEmail}>
+            {isVerifyingEmail ? '확인 중' : '인증 확인'}
+          </ActionButton>
+        </InlineField>
+        {emailMessage ? <HelperText $success={emailVerified}>{emailMessage}</HelperText> : null}
+      </FormStack>
 
       {form.accountType === 'business' ? (
         <>
@@ -502,6 +502,7 @@ const Title = styled.h2`
   font-size: 1.8rem;
   text-align: center;
   margin-bottom: 0.5rem;
+  color: #0f172a;
 `
 
 const Subtitle = styled.p`
@@ -515,19 +516,6 @@ const SectionTitle = styled.p`
   font-weight: 600;
   color: #334155;
   margin: 1rem 0 0.75rem;
-`
-
-const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-  width: calc(100% - 12px);
-  margin: 0 auto;
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-    width: 100%;
-  }
 `
 
 const ChoiceRow = styled.div`
@@ -546,6 +534,24 @@ const ChoiceButton = styled.button<{ $active: boolean }>`
   padding: 0.85rem 1rem;
   font-size: 0.95rem;
   cursor: pointer;
+`
+
+const FormStack = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 1.25rem 0;
+  padding: 1.1rem 0.4rem 0.2rem;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+`
+
+const FieldLabel = styled.label`
+  display: block;
+  margin: 0 0 0.45rem 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #334155;
 `
 
 const RadioRow = styled.div`
