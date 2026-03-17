@@ -1,7 +1,8 @@
-import crypto from 'crypto'
+﻿import crypto from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/db/dbConnect'
 import EmailVerification from '@/db/models/emailVerification'
+import { sendVerificationEmail } from '@/lib/mailer'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -16,26 +17,33 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: '올바른 이메일 형식을 입력해 주세요.' }, { status: 400 })
   }
 
-  await dbConnect()
-
   const code = String(crypto.randomInt(100000, 1000000))
   const expiresAt = new Date(Date.now() + 1000 * 60 * 5)
 
-  await EmailVerification.findOneAndUpdate(
-    { email },
-    {
-      email,
-      codeHash: hashCode(code),
-      expiresAt,
-      verified: false,
-      verifiedAt: null,
-    },
-    { upsert: true, new: true, setDefaultsOnInsert: true }
-  )
+  try {
+    await dbConnect()
+
+    await EmailVerification.findOneAndUpdate(
+      { email },
+      {
+        email,
+        codeHash: hashCode(code),
+        expiresAt,
+        verified: false,
+        verifiedAt: null,
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    )
+
+    await sendVerificationEmail({ email, code })
+  } catch (error) {
+    console.error('Failed to send verification email:', error)
+
+    return NextResponse.json({ message: '인증 메일 전송에 실패했습니다. SMTP 설정을 확인해 주세요.' }, { status: 500 })
+  }
 
   return NextResponse.json({
-    message: '인증 코드가 발급되었습니다.',
+    message: '인증 메일을 전송했습니다. 이메일을 확인해 주세요.',
     expiresAt,
-    devCode: code,
   })
 }

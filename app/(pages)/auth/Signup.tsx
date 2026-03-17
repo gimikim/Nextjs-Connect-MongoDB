@@ -83,7 +83,7 @@ export default function SignUp() {
 
   const handleCheckUsername = async () => {
     if (!form.username.trim()) {
-      setUsernameMessage('아이디를 입력해 주세요.')
+      setUsernameMessage('???? ??? ???.')
       setUsernameAvailable(false)
       return
     }
@@ -93,14 +93,22 @@ export default function SignUp() {
 
     try {
       const response = await fetch(`/api/signup/check-username?username=${encodeURIComponent(form.username)}`)
-      const result = await response.json()
+      const result = await response.json().catch(() => null)
+
+      if (!response.ok) {
+        setUsernameChecked('')
+        setUsernameAvailable(false)
+        setUsernameMessage(result?.message ?? '??? ?? ?? ? ??? ??????.')
+        return
+      }
 
       setUsernameChecked(form.username)
-      setUsernameAvailable(Boolean(result.available))
-      setUsernameMessage(result.message)
+      setUsernameAvailable(Boolean(result?.available))
+      setUsernameMessage(result?.message ?? '??? ?? ??? ???????.')
     } catch {
+      setUsernameChecked('')
       setUsernameAvailable(false)
-      setUsernameMessage('아이디 중복 확인 중 오류가 발생했습니다.')
+      setUsernameMessage('??? ?? ?? ? ??? ??????.')
     } finally {
       setIsCheckingUsername(false)
     }
@@ -108,7 +116,7 @@ export default function SignUp() {
 
   const handleSendVerification = async () => {
     if (!emailValid) {
-      setEmailMessage('올바른 이메일 형식을 입력해 주세요.')
+      setEmailMessage('??? ??? ??? ??? ???.')
       return
     }
 
@@ -125,15 +133,13 @@ export default function SignUp() {
       const result = await response.json()
 
       if (!response.ok) {
-        setEmailMessage(result.message ?? '이메일 인증 요청에 실패했습니다.')
+        setEmailMessage(result.message ?? '??? ?? ??? ??????.')
         return
       }
 
-      setEmailMessage(
-        `인증 코드가 발급되었습니다. 현재 개발 환경에서는 확인용 코드 ${result.devCode} 를 사용해 주세요.`
-      )
+      setEmailMessage(result.message ?? '?? ??? ??????. ???? ??? ???.')
     } catch {
-      setEmailMessage('이메일 인증 요청 중 오류가 발생했습니다.')
+      setEmailMessage('??? ?? ?? ? ??? ??????.')
     } finally {
       setIsSendingCode(false)
     }
