@@ -1,4 +1,4 @@
-export interface User {
+﻿export interface User {
   name: string
   email: string
   nickname?: string
@@ -7,10 +7,9 @@ export interface User {
   birthDate: string
   gender: 'male' | 'female' | 'other'
   phoneNumber: string
+  address: string
   username: string
   passwordHash: string
-  address: string
-  marketingConsent: boolean
   accountType: 'personal' | 'business'
   companyName: string
   businessNumber: string

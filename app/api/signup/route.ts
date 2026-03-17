@@ -19,25 +19,15 @@ export async function POST(req: NextRequest) {
     birthDate,
     gender,
     phoneNumber,
+    address,
     username,
     password,
-    address,
-    marketingConsent,
     accountType,
     companyName,
     businessNumber,
   } = body
 
-  if (
-    !name ||
-    !email ||
-    !birthDate ||
-    !gender ||
-    !phoneNumber ||
-    !username ||
-    !password ||
-    !address
-  ) {
+  if (!name || !email || !birthDate || !gender || !phoneNumber || !address || !username || !password) {
     return NextResponse.json({ message: '필수 항목을 모두 입력해 주세요.' }, { status: 400 })
   }
 
@@ -74,13 +64,12 @@ export async function POST(req: NextRequest) {
     birthDate,
     gender,
     phoneNumber,
+    address,
     username,
     passwordHash: hashPassword(password),
-    address,
-    marketingConsent: Boolean(marketingConsent),
     accountType: accountType === 'business' ? 'business' : 'personal',
-    companyName: accountType === 'business' ? companyName ?? '' : '',
-    businessNumber: accountType === 'business' ? businessNumber ?? '' : '',
+    companyName: accountType === 'business' ? (companyName ?? '') : '',
+    businessNumber: accountType === 'business' ? (businessNumber ?? '') : '',
     emailVerified: true,
     emailVerifiedAt: verification.verifiedAt ?? new Date(),
   })

@@ -2,11 +2,27 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import Script from 'next/script'
 import { useState } from 'react'
 import styled from 'styled-components'
 
 type AccountType = 'personal' | 'business'
 type Gender = 'male' | 'female' | 'other'
+
+interface DaumPostcodeResult {
+  address: string
+  addressType: 'R' | 'J'
+  bname: string
+  buildingName: string
+}
+
+declare global {
+  interface Window {
+    daum?: {
+      Postcode: new (options: { oncomplete: (data: DaumPostcodeResult) => void }) => { open: () => void }
+    }
+  }
+}
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -16,11 +32,10 @@ interface FormState {
   birthDate: string
   gender: Gender
   phoneNumber: string
+  address: string
   username: string
   password: string
   confirmPassword: string
-  address: string
-  marketingConsent: boolean
   accountType: AccountType
   companyName: string
   businessNumber: string
@@ -33,11 +48,10 @@ const initialForm: FormState = {
   birthDate: '',
   gender: 'male',
   phoneNumber: '',
+  address: '',
   username: '',
   password: '',
   confirmPassword: '',
-  address: '',
-  marketingConsent: false,
   accountType: 'personal',
   companyName: '',
   businessNumber: '',
@@ -51,6 +65,7 @@ export default function SignUp() {
   const [isSendingCode, setIsSendingCode] = useState(false)
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSearchingAddress, setIsSearchingAddress] = useState(false)
   const [usernameChecked, setUsernameChecked] = useState('')
   const [usernameAvailable, setUsernameAvailable] = useState(false)
   const [emailVerified, setEmailVerified] = useState(false)
@@ -79,11 +94,15 @@ export default function SignUp() {
       setEmailVerified(false)
       setEmailMessage('')
     }
+
+    if (key === 'address') {
+      setSubmitMessage('')
+    }
   }
 
   const handleCheckUsername = async () => {
     if (!form.username.trim()) {
-      setUsernameMessage('???? ??? ???.')
+      setUsernameMessage('아이디를 입력해 주세요.')
       setUsernameAvailable(false)
       return
     }
@@ -98,17 +117,17 @@ export default function SignUp() {
       if (!response.ok) {
         setUsernameChecked('')
         setUsernameAvailable(false)
-        setUsernameMessage(result?.message ?? '??? ?? ?? ? ??? ??????.')
+        setUsernameMessage(result?.message ?? '아이디 중복 확인 중 오류가 발생했습니다.')
         return
       }
 
       setUsernameChecked(form.username)
       setUsernameAvailable(Boolean(result?.available))
-      setUsernameMessage(result?.message ?? '??? ?? ??? ???????.')
+      setUsernameMessage(result?.message ?? '아이디 중복 확인이 완료되었습니다.')
     } catch {
       setUsernameChecked('')
       setUsernameAvailable(false)
-      setUsernameMessage('??? ?? ?? ? ??? ??????.')
+      setUsernameMessage('아이디 중복 확인 중 오류가 발생했습니다.')
     } finally {
       setIsCheckingUsername(false)
     }
@@ -116,7 +135,7 @@ export default function SignUp() {
 
   const handleSendVerification = async () => {
     if (!emailValid) {
-      setEmailMessage('??? ??? ??? ??? ???.')
+      setEmailMessage('올바른 이메일 형식을 입력해 주세요.')
       return
     }
 
@@ -133,20 +152,22 @@ export default function SignUp() {
       const result = await response.json()
 
       if (!response.ok) {
-        setEmailMessage(result.message ?? '??? ?? ??? ??????.')
+        setEmailMessage(result.message ?? '이메일 인증 요청에 실패했습니다.')
         return
       }
 
-      setEmailMessage(result.message ?? '?? ??? ??????. ???? ??? ???.')
+      setEmailMessage(result.message ?? '인증 메일을 전송했습니다. 이메일을 확인해 주세요.')
     } catch {
-      setEmailMessage('??? ?? ?? ? ??? ??????.')
+      setEmailMessage('이메일 인증 요청 중 오류가 발생했습니다.')
     } finally {
       setIsSendingCode(false)
     }
   }
 
   const handleVerifyEmail = async () => {
-    if (!form.emailCode.trim()) {
+    const normalizedCode = form.emailCode.trim()
+
+    if (!normalizedCode) {
       setEmailMessage('이메일로 받은 인증 코드를 입력해 주세요.')
       return
     }
@@ -157,7 +178,7 @@ export default function SignUp() {
       const response = await fetch('/api/signup/verify-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: form.email, code: form.emailCode }),
+        body: JSON.stringify({ email: form.email, code: normalizedCode }),
       })
       const result = await response.json()
 
@@ -177,6 +198,26 @@ export default function SignUp() {
     }
   }
 
+  const handleSearchAddress = () => {
+    setSubmitMessage('')
+
+    if (!window.daum?.Postcode) {
+      setSubmitMessage('주소 검색 서비스를 아직 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.')
+      return
+    }
+
+    setIsSearchingAddress(true)
+
+    new window.daum.Postcode({
+      oncomplete: (data) => {
+        const extraAddress = data.addressType === 'R' ? [data.bname, data.buildingName].filter(Boolean).join(', ') : ''
+
+        updateField('address', extraAddress ? `${data.address} (${extraAddress})` : data.address)
+        setIsSearchingAddress(false)
+      },
+    }).open()
+  }
+
   const validateBeforeSubmit = () => {
     if (
       !form.name ||
@@ -184,10 +225,10 @@ export default function SignUp() {
       !form.birthDate ||
       !form.gender ||
       !form.phoneNumber ||
+      !form.address ||
       !form.username ||
       !form.password ||
-      !form.confirmPassword ||
-      !form.address
+      !form.confirmPassword
     ) {
       return '필수 항목을 모두 입력해 주세요.'
     }
@@ -239,10 +280,9 @@ export default function SignUp() {
           birthDate: form.birthDate,
           gender: form.gender,
           phoneNumber: form.phoneNumber,
+          address: form.address,
           username: form.username,
           password: form.password,
-          address: form.address,
-          marketingConsent: form.marketingConsent,
           accountType: form.accountType,
           companyName: form.companyName,
           businessNumber: form.businessNumber,
@@ -266,6 +306,7 @@ export default function SignUp() {
 
   return (
     <SignUpBox>
+      <Script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js" strategy="afterInteractive" />
       <LogoWrap>CONNECT</LogoWrap>
       <Title>회원가입</Title>
       <Subtitle>일반 회원과 사업자 회원 모두 가입할 수 있습니다.</Subtitle>
@@ -345,6 +386,13 @@ export default function SignUp() {
       />
 
       <InlineField>
+        <InputField type="text" placeholder="기본 배송지" value={form.address} readOnly />
+        <ActionButton type="button" onClick={handleSearchAddress} disabled={isSearchingAddress}>
+          {isSearchingAddress ? '검색 중' : '주소 검색'}
+        </ActionButton>
+      </InlineField>
+
+      <InlineField>
         <InputField
           type="text"
           placeholder="아이디"
@@ -398,13 +446,6 @@ export default function SignUp() {
       />
       {form.confirmPassword ? <HelperText $success={passwordMatched}>{passwordMatchMessage}</HelperText> : null}
 
-      <InputField
-        type="text"
-        placeholder="기본 배송지"
-        value={form.address}
-        onChange={(e) => updateField('address', e.target.value)}
-      />
-
       {form.accountType === 'business' ? (
         <>
           <InputField
@@ -422,16 +463,6 @@ export default function SignUp() {
         </>
       ) : null}
 
-      <CheckboxRow>
-        <input
-          id="marketing"
-          type="checkbox"
-          checked={form.marketingConsent}
-          onChange={(e) => updateField('marketingConsent', e.target.checked)}
-        />
-        <label htmlFor="marketing">마케팅 수신에 동의합니다.</label>
-      </CheckboxRow>
-
       {submitMessage ? <SubmitMessage>{submitMessage}</SubmitMessage> : null}
 
       <SignUpButton type="button" onClick={handleSignUp} disabled={isSubmitting}>
@@ -446,11 +477,11 @@ export default function SignUp() {
 }
 
 const SignUpBox = styled.div`
-  width: min(720px, calc(100vw - 32px));
+  width: min(680px, calc(100vw - 40px));
   max-height: calc(100vh - 32px);
   overflow-y: auto;
   background: white;
-  padding: 2rem;
+  padding: 2.25rem;
   border-radius: 16px;
   box-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
 `
@@ -490,9 +521,12 @@ const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
+  width: calc(100% - 12px);
+  margin: 0 auto;
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
+    width: 100%;
   }
 `
 
@@ -500,6 +534,8 @@ const ChoiceRow = styled.div`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
+  width: calc(100% - 12px);
+  margin: 0 auto;
 `
 
 const ChoiceButton = styled.button<{ $active: boolean }>`
@@ -531,21 +567,28 @@ const InlineField = styled.div`
   grid-template-columns: minmax(0, 1fr) 120px;
   gap: 0.75rem;
   align-items: start;
+  width: calc(100% - 12px);
+  margin: 0 auto;
 
   @media (max-width: 640px) {
     grid-template-columns: 1fr;
+    width: 100%;
   }
 `
 
 const InputField = styled.input`
-  width: 100%;
+  width: calc(100% - 12px);
   padding: 0.85rem 1rem;
-  margin-bottom: 0.75rem;
+  margin: 0 auto 0.75rem;
   border: 1px solid #dbe2ea;
   border-radius: 10px;
   font-size: 0.95rem;
   background-color: #f8fafc;
   color: #0f172a;
+
+  @media (max-width: 640px) {
+    width: 100%;
+  }
 `
 
 const ActionButton = styled.button`
@@ -568,14 +611,6 @@ const HelperText = styled.p<{ $success: boolean }>`
   margin: -0.3rem 0 0.8rem;
   color: ${(props) => (props.$success ? '#15803d' : '#dc2626')};
   font-size: 0.85rem;
-`
-
-const CheckboxRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0.5rem 0 1rem;
-  color: #334155;
 `
 
 const SubmitMessage = styled.p`
