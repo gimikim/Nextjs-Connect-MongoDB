@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import styled from 'styled-components'
 
 type AccountType = 'personal' | 'business'
@@ -58,17 +58,15 @@ export default function SignUp() {
   const [usernameMessage, setUsernameMessage] = useState('')
   const [submitMessage, setSubmitMessage] = useState('')
 
-  const passwordLengthValid = useMemo(
-    () => form.password.length >= 8 && form.password.length <= 15,
-    [form.password]
-  )
-  const passwordMatched = useMemo(
-    () => form.password.length > 0 && form.password === form.confirmPassword,
-    [form.password, form.confirmPassword]
-  )
-  const emailValid = useMemo(() => EMAIL_REGEX.test(form.email), [form.email])
+  const passwordLengthValid = form.password.length >= 8 && form.password.length <= 15
+  const passwordMatched = form.password.length > 0 && form.password === form.confirmPassword
+  const emailValid = EMAIL_REGEX.test(form.email)
+  const passwordLengthMessage = passwordLengthValid
+    ? '사용 가능한 비밀번호 길이입니다.'
+    : '비밀번호는 8자 이상 15자 이하로 입력해 주세요.'
+  const passwordMatchMessage = passwordMatched ? '비밀번호가 일치합니다.' : '비밀번호가 일치하지 않습니다.'
 
-  const updateField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
+  function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
 
     if (key === 'username') {
@@ -384,11 +382,7 @@ export default function SignUp() {
         value={form.password}
         onChange={(e) => updateField('password', e.target.value)}
       />
-      {form.password ? (
-        <HelperText $success={passwordLengthValid}>
-          비밀번호는 8자 이상 15자 이하로 입력해 주세요.
-        </HelperText>
-      ) : null}
+      {form.password ? <HelperText $success={passwordLengthValid}>{passwordLengthMessage}</HelperText> : null}
 
       <InputField
         type="password"
@@ -396,9 +390,7 @@ export default function SignUp() {
         value={form.confirmPassword}
         onChange={(e) => updateField('confirmPassword', e.target.value)}
       />
-      {form.confirmPassword ? (
-        <HelperText $success={passwordMatched}>비밀번호 일치 여부를 확인해 주세요.</HelperText>
-      ) : null}
+      {form.confirmPassword ? <HelperText $success={passwordMatched}>{passwordMatchMessage}</HelperText> : null}
 
       <InputField
         type="text"

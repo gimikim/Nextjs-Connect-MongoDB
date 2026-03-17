@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation'
 
 function AuthContent() {
   const searchParams = useSearchParams()
-  const type = searchParams.get('type')
+  const type = searchParams.get('type') ?? 'login'
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
