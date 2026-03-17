@@ -1,16 +1,14 @@
-'use client'
+﻿'use client'
 
 import { useState, Suspense } from 'react'
 import styled from 'styled-components'
 import SignUp from './Signup'
 import ForgetPassword from './ForgetPass'
-import { Gaitwise } from '@/public/svg'
-import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
 
 function AuthContent() {
-  const searchParams = useSearchParams() // URLのクエリパラメータを取得
-  const type = searchParams.get('type') // 'type' クエリパラメータを取得
+  const searchParams = useSearchParams()
+  const type = searchParams.get('type')
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -26,9 +24,9 @@ function AuthContent() {
     })
 
     if (res.ok) {
-      alert('ログイン成功')
+      alert('로그인에 성공했습니다.')
     } else {
-      alert('ログイン失敗')
+      alert('로그인에 실패했습니다.')
     }
   }
 
@@ -36,7 +34,7 @@ function AuthContent() {
     <Container>
       {type === 'login' && (
         <LoginBox>
-          <Image src={Gaitwise} alt="logo" width={100} height={100} layout="responsive" />
+          <Logo>CONNECT</Logo>
           <Title>Hi, Welcome Back!</Title>
           <Subtitle>Please select a Type</Subtitle>
 
@@ -81,7 +79,7 @@ function AuthContent() {
           <Links>
             <a href="/auth?type=forgetpass">Forgot password?</a>
             <p>
-              Don’t have an account yet? <a href="/auth?type=sign-up">Sign up</a>
+              Don&apos;t have an account yet? <a href="/auth?type=sign-up">Sign up</a>
             </p>
           </Links>
         </LoginBox>
@@ -106,7 +104,8 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
+  padding: 1rem;
   background-color: #f0f4f8;
 `
 
@@ -117,6 +116,17 @@ const LoginBox = styled.div`
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   text-align: center;
   width: 350px;
+`
+
+const Logo = styled.div`
+  width: 100px;
+  margin: 0 auto 1rem;
+  padding: 0.65rem 0;
+  border-radius: 999px;
+  background: #0f172a;
+  color: white;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 `
 
 const Title = styled.h2`
