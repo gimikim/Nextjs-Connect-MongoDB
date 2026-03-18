@@ -1,8 +1,10 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/db/dbConnect'
 import User from '@/db/models/user'
 
+// 아이디(username) 중복을 체크하는 GET API 핸들러입니다.
 export async function GET(req: NextRequest) {
+  // 쿼리 파라미터에서 username 값을 추출하고 공백을 제거합니다.
   const username = req.nextUrl.searchParams.get('username')?.trim()
 
   if (!username) {
@@ -12,6 +14,7 @@ export async function GET(req: NextRequest) {
   try {
     await dbConnect()
 
+    // 해당 아이디를 가진 사용자가 데이터베이스에 이미 존재하는지 확인합니다(true/false).
     const existingUser = await User.exists({ username })
 
     return NextResponse.json({

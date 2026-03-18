@@ -1,11 +1,13 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import styled from 'styled-components'
 
 export default function ForgetPassword() {
+  // 사용자가 입력할 이메일 상태를 관리합니다.
   const [email, setEmail] = useState('')
 
+  // 비밀번호 재설정 이메일을 전송하도록 백엔드 API에 요청하는 함수입니다.
   const handleSendCode = async () => {
     const res = await fetch('/api/forgot-password', {
       method: 'POST',

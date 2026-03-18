@@ -64,8 +64,12 @@ const initialForm: FormState = {
 }
 
 export default function SignUp() {
-  const router = useRouter()
+  const router = useRouter() // 페이지 이동을 위한 Next.js 라우터
+
+  // 폼 입력 상태를 하나로 관리하기 위한 useState 객체
   const [form, setForm] = useState<FormState>(initialForm)
+
+  // 로딩 및 중복 확인, 인증 여부 등 UI 상태 관리를 위한 state들
   const [isCheckingUsername, setIsCheckingUsername] = useState(false)
   const [isSendingCode, setIsSendingCode] = useState(false)
   const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
@@ -88,6 +92,7 @@ export default function SignUp() {
     : passwordValidationMessage || PASSWORD_REQUIREMENTS_MESSAGE
   const passwordMatchMessage = passwordMatched ? '비밀번호가 일치합니다.' : '비밀번호가 일치하지 않습니다.'
 
+  // 입력 필드의 값이 변경될 때마다 폼 상태를 업데이트해주는 공통 함수
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
 
@@ -107,6 +112,8 @@ export default function SignUp() {
     }
   }
 
+  // 아이디 중복을 백엔드 API를 통해 확인하는 핸들러
+  // 사용자가 입력한 아이디가 DB에 이미 있는지 검사합니다.
   const handleCheckUsername = async () => {
     if (!form.username.trim()) {
       setUsernameMessage('아이디를 입력해 주세요.')
@@ -140,6 +147,7 @@ export default function SignUp() {
     }
   }
 
+  // 사용자의 이메일 주소로 6자리 보안 인증 코드를 발송하는 핸들러
   const handleSendVerification = async () => {
     if (!emailValid) {
       setEmailMessage('올바른 이메일 형식을 입력해 주세요.')
@@ -171,6 +179,8 @@ export default function SignUp() {
     }
   }
 
+  // 사용자가 이메일로 받은 코드를 입력 후 인증을 요청하는 핸들러
+  // 백엔드에서 입력된 코드와 만료 기간을 검증합니다.
   const handleVerifyEmail = async () => {
     const normalizedCode = form.emailCode.trim()
 
@@ -205,6 +215,7 @@ export default function SignUp() {
     }
   }
 
+  // 다음(Daum) 우편번호 API를 호출하여 주소 검색 팝업을 띄우는 함수
   const handleSearchAddress = () => {
     setSubmitMessage('')
 
@@ -225,6 +236,8 @@ export default function SignUp() {
     }).open()
   }
 
+  // 폼 제출(회원가입 완료) 전 모든 필수 값을 입력했는지 및 유효성 검사를 수행하는 함수
+  // 빈 문자열이 반환되면 오류가 없는 것입니다.
   const validateBeforeSubmit = () => {
     if (
       !form.name ||
@@ -267,6 +280,7 @@ export default function SignUp() {
     return ''
   }
 
+  // 최종적으로 입력된 데이터를 모아 백엔드의 회원가입 API(/api/signup)로 전송하는 핸들러
   const handleSignUp = async () => {
     const validationMessage = validateBeforeSubmit()
     if (validationMessage) {
@@ -303,6 +317,7 @@ export default function SignUp() {
         return
       }
 
+      // 회원가입 성공 시 로그인 페이지로 이동
       router.push('/auth?type=login')
     } catch {
       setSubmitMessage('회원가입 처리 중 오류가 발생했습니다.')

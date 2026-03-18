@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState, Suspense } from 'react'
 import styled from 'styled-components'
@@ -7,13 +7,17 @@ import ForgetPassword from './ForgetPass'
 import { useSearchParams } from 'next/navigation'
 
 function AuthContent() {
+  // URL의 쿼리 파라미터(?type=값)를 읽어와서 화면 모드를 결정합니다.
+  // 기본값은 'login' 화면입니다.
   const searchParams = useSearchParams()
   const type = searchParams.get('type') ?? 'login'
 
+  // 로그인 폼에 입력되는 아이디, 비밀번호, 역할(일반/사업자) 상태를 관리합니다.
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState('analyst')
+  const [role, setRole] = useState('personal')
 
+  // 백엔드 로그인 API로 사용자 정보를 보내 인증을 시도하는 핸들러입니다.
   const handleLogin = async () => {
     const res = await fetch('/api/login', {
       method: 'POST',
@@ -35,51 +39,51 @@ function AuthContent() {
       {type === 'login' && (
         <LoginBox>
           <Logo>CONNECT</Logo>
-          <Title>Hi, Welcome Back!</Title>
-          <Subtitle>Please select a Type</Subtitle>
+          <Title>환영합니다!</Title>
+          <Subtitle>회원 유형을 선택해 주세요.</Subtitle>
 
           <RoleSelect>
             <label>
               <input
                 type="radio"
                 name="role"
-                value="analyst"
-                checked={role === 'analyst'}
+                value="personal"
+                checked={role === 'personal'}
                 onChange={(e) => setRole(e.target.value)}
               />
-              Analysts
+              일반 회원
             </label>
             <label>
               <input
                 type="radio"
                 name="role"
-                value="doctor"
-                checked={role === 'doctor'}
+                value="business"
+                checked={role === 'business'}
                 onChange={(e) => setRole(e.target.value)}
               />
-              Doctor
+              사업자 회원
             </label>
           </RoleSelect>
 
           <InputField
             type="email"
-            placeholder="Your Email"
+            placeholder="이메일"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
           <InputField
             type="password"
-            placeholder="Password"
+            placeholder="비밀번호"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <LoginButton onClick={handleLogin}>Sign In</LoginButton>
+          <LoginButton onClick={handleLogin}>로그인</LoginButton>
 
           <Links>
-            <a href="/auth?type=forgetpass">Forgot password?</a>
+            <a href="/auth?type=forgetpass">비밀번호를 잊으셨나요?</a>
             <p>
-              Don&apos;t have an account yet? <a href="/auth?type=sign-up">Sign up</a>
+              아직 계정이 없으신가요? <a href="/auth?type=sign-up">회원가입</a>
             </p>
           </Links>
         </LoginBox>
@@ -92,6 +96,9 @@ function AuthContent() {
   )
 }
 
+// 인증 관련 전체 화면을 담당하는 최상위 페이지 컴포넌트입니다.
+// Next.js 13+ 앱 라우터 환경에서 클라이언트 사이드의 useSearchParams를 사용할 때는
+// 빌드 오류 방지를 위해 React의 Suspense로 감싸주어야 합니다.
 export default function AuthPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -132,10 +139,11 @@ const Logo = styled.div`
 const Title = styled.h2`
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
+  color: #0f172a; /* 선명해지도록 진한 검정색 추가 */
 `
 
 const Subtitle = styled.p`
-  color: #666;
+  color: #475569; /* 부제목도 조금 더 선명한 색상으로 조정 */
   margin-bottom: 1.5rem;
 `
 
@@ -147,6 +155,7 @@ const RoleSelect = styled.div`
   label {
     margin: 0 1rem;
     font-size: 1rem;
+    color: #0f172a; /* 라디오 버튼의 글자를 진한 검정색으로 지정 */
   }
 `
 
@@ -158,6 +167,7 @@ const InputField = styled.input`
   border-radius: 8px;
   font-size: 1rem;
   background-color: #f9f9f9;
+  color: #0f172a; /* 입력하는 글자 색상을 어두운 검정색으로 설정 */
 `
 
 const LoginButton = styled.button`
