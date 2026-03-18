@@ -1,8 +1,9 @@
-﻿import crypto from 'crypto'
+import crypto from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/db/dbConnect'
 import EmailVerification from '@/db/models/emailVerification'
 import User from '@/db/models/user'
+import { getPasswordValidationMessage } from '@/lib/passwordValidation'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -35,8 +36,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: '이메일 형식이 올바르지 않습니다.' }, { status: 400 })
   }
 
-  if (password.length < 8 || password.length > 15) {
-    return NextResponse.json({ message: '비밀번호는 8자 이상 15자 이하로 입력해 주세요.' }, { status: 400 })
+  const passwordValidationMessage = getPasswordValidationMessage(password, username)
+
+  if (passwordValidationMessage) {
+    return NextResponse.json({ message: passwordValidationMessage }, { status: 400 })
   }
 
   await dbConnect()

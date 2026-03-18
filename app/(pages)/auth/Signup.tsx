@@ -1,10 +1,15 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Script from 'next/script'
 import { useState } from 'react'
 import styled from 'styled-components'
+import {
+  getPasswordValidationMessage,
+  isPasswordLengthValid,
+  PASSWORD_REQUIREMENTS_MESSAGE,
+} from '@/lib/passwordValidation'
 
 type AccountType = 'personal' | 'business'
 type Gender = 'male' | 'female'
@@ -73,12 +78,14 @@ export default function SignUp() {
   const [usernameMessage, setUsernameMessage] = useState('')
   const [submitMessage, setSubmitMessage] = useState('')
 
-  const passwordLengthValid = form.password.length >= 8 && form.password.length <= 15
+  const passwordLengthValid = isPasswordLengthValid(form.password)
+  const passwordValidationMessage = getPasswordValidationMessage(form.password, form.username)
+  const passwordValid = form.password.length > 0 && !passwordValidationMessage
   const passwordMatched = form.password.length > 0 && form.password === form.confirmPassword
   const emailValid = EMAIL_REGEX.test(form.email)
-  const passwordLengthMessage = passwordLengthValid
-    ? '사용 가능한 비밀번호 길이입니다.'
-    : '비밀번호는 8자 이상 15자 이하로 입력해 주세요.'
+  const passwordLengthMessage = passwordValid
+    ? '사용 가능한 비밀번호입니다.'
+    : passwordValidationMessage || PASSWORD_REQUIREMENTS_MESSAGE
   const passwordMatchMessage = passwordMatched ? '비밀번호가 일치합니다.' : '비밀번호가 일치하지 않습니다.'
 
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -237,8 +244,8 @@ export default function SignUp() {
       return '이메일 형식을 확인해 주세요.'
     }
 
-    if (!passwordLengthValid) {
-      return '비밀번호는 8자 이상 15자 이하로 입력해 주세요.'
+    if (!passwordLengthValid || passwordValidationMessage) {
+      return passwordValidationMessage || PASSWORD_REQUIREMENTS_MESSAGE
     }
 
     if (!passwordMatched) {
@@ -392,7 +399,7 @@ export default function SignUp() {
           value={form.password}
           onChange={(e) => updateField('password', e.target.value)}
         />
-        {form.password ? <HelperText $success={passwordLengthValid}>{passwordLengthMessage}</HelperText> : null}
+        {form.password ? <HelperText $success={passwordValid}>{passwordLengthMessage}</HelperText> : null}
 
         <FieldLabel>비밀번호 확인</FieldLabel>
         <InputField
