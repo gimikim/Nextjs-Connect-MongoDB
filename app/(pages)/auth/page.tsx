@@ -46,28 +46,14 @@ function AuthContent() {
           <Title>환영합니다!</Title>
           <Subtitle>회원 유형을 선택해 주세요.</Subtitle>
 
-          <RoleSelect>
-            <label>
-              <input
-                type="radio"
-                name="role"
-                value="personal"
-                checked={role === 'personal'}
-                onChange={(e) => setRole(e.target.value)}
-              />
+          <TabContainer>
+            <Tab $active={role === 'personal'} onClick={() => setRole('personal')}>
               일반 회원
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="role"
-                value="business"
-                checked={role === 'business'}
-                onChange={(e) => setRole(e.target.value)}
-              />
+            </Tab>
+            <Tab $active={role === 'business'} onClick={() => setRole('business')}>
               사업자 회원
-            </label>
-          </RoleSelect>
+            </Tab>
+          </TabContainer>
 
           <InputField type="text" placeholder="아이디" value={username} onChange={(e) => setUsername(e.target.value)} />
           <InputField
@@ -80,8 +66,8 @@ function AuthContent() {
           <LoginButton onClick={handleLogin}>로그인</LoginButton>
 
           <Links>
-            <a href="/auth?type=forgetpass">비밀번호를 잊으셨나요?</a>
-            <p>
+            <a href="/auth?type=forgetpass">아이디/비밀번호 찾기</a>
+            <p className="signup-prompt">
               아직 계정이 없으신가요? <a href="/auth?type=sign-up">회원가입</a>
             </p>
           </Links>
@@ -148,15 +134,25 @@ const Subtitle = styled.p`
   margin-bottom: 1.5rem;
 `
 
-const RoleSelect = styled.div`
+const TabContainer = styled.div`
   display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e2e8f0;
+`
 
-  label {
-    margin: 0 1rem;
-    font-size: 1rem;
-    color: #0f172a; /* 라디오 버튼의 글자를 진한 검정색으로 지정 */
+const Tab = styled.div<{ $active: boolean }>`
+  flex: 1;
+  padding: 0.75rem 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: ${(props) => (props.$active ? '#0f172a' : '#94a3b8')};
+  border-bottom: ${(props) => (props.$active ? '3px solid #0f172a' : '3px solid transparent')};
+  margin-bottom: -2px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #0f172a;
   }
 `
 
@@ -196,5 +192,11 @@ const Links = styled.div`
 
   a:hover {
     text-decoration: underline;
+  }
+
+  .signup-prompt {
+    margin-top: 1rem;
+    color: #1e293b;
+    font-weight: 500;
   }
 `

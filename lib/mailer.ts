@@ -86,3 +86,33 @@ export async function sendPasswordResetEmail(params: { email: string; name: stri
     `,
   })
 }
+
+// 아이디 찾기 요청 시 사용자에게 아이디를 포함한 이메일을 발송하는 함수입니다.
+export async function sendFindIdEmail(params: { email: string; name: string; username: string }) {
+  const transporter = createMailTransport()
+  const from = getMailFromAddress()
+
+  const mailOptions = {
+    from,
+    to: params.email,
+    subject: `[CONNECT] ${params.name}님의 아이디 찾기 안내입니다.`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px;">
+        <h2 style="color: #0f172a; margin-bottom: 24px;">아이디 찾기 결과</h2>
+        <p style="color: #333; font-size: 16px; margin-bottom: 16px;">안녕하세요, <strong>${params.name}</strong>님.</p>
+        <p style="color: #333; font-size: 16px; margin-bottom: 24px;">요청하신 아이디 찾기 결과입니다.</p>
+        
+        <div style="background-color: #f8fafc; padding: 20px; border-radius: 6px; text-align: center; margin-bottom: 30px;">
+          <p style="color: #475569; font-size: 14px; margin: 0 0 8px;">가입하신 아이디</p>
+          <p style="color: #2563eb; font-size: 24px; font-weight: bold; margin: 0;">${params.username}</p>
+        </div>
+
+        <p style="color: #64748b; font-size: 14px; margin-bottom: 0;">
+          본인이 요청하지 않은 메일이라면 고객센터로 문의해 주세요.
+        </p>
+      </div>
+    `,
+  }
+
+  await transporter.sendMail(mailOptions)
+}
