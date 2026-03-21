@@ -65,12 +65,7 @@ function AuthContent() {
             </label>
           </RoleSelect>
 
-          <InputField
-            type="email"
-            placeholder="이메일"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+          <InputField type="text" placeholder="아이디" value={username} onChange={(e) => setUsername(e.target.value)} />
           <InputField
             type="password"
             placeholder="비밀번호"
@@ -118,11 +113,11 @@ const Container = styled.div`
 
 const LoginBox = styled.div`
   background: white;
-  padding: 2rem;
+  padding: 2.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   text-align: center;
-  width: 350px;
+  width: 420px;
 `
 
 const Logo = styled.div`

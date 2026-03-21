@@ -13,17 +13,13 @@ function getRequiredEnv(name: string) {
 }
 
 // Nodemailer를 사용하여 메일 전송 객체(transporter)를 생성하는 함수입니다.
-// .env에 설정된 외부 SMTP 서버 정보(예: Google, Naver 메일 등)를 이용해 연결을 설정합니다.
+// .env에 설정된 Gmail 계정과 앱 비밀번호를 이용해 연결을 설정합니다.
 export function createMailTransport() {
-  const host = getRequiredEnv('SMTP_HOST')
-  const port = Number(getRequiredEnv('SMTP_PORT'))
-  const user = getRequiredEnv('SMTP_USER')
-  const pass = getRequiredEnv('SMTP_PASS')
+  const user = getRequiredEnv('GMAIL_USER')
+  const pass = getRequiredEnv('GMAIL_PASS')
 
   return nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465, // SSL/TLS 포트(465)인 경우 secure 옵션을 true로 설정
+    service: 'gmail',
     auth: {
       user,
       pass,
@@ -32,9 +28,8 @@ export function createMailTransport() {
 }
 
 // 발신자 이메일 주소를 가져오는 함수입니다.
-// .env에 별도 설정(MAIL_FROM)이 없으면 SMTP 접속 계정을 기본 발신자로 사용합니다.
 export function getMailFromAddress() {
-  return process.env.MAIL_FROM ?? getRequiredEnv('SMTP_USER')
+  return getRequiredEnv('GMAIL_USER')
 }
 
 // 회원가입 시 인증 메일을 실제로 전송하는 함수입니다.
