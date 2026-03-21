@@ -55,3 +55,27 @@ export async function sendVerificationEmail(params: { email: string; code: strin
     `,
   })
 }
+
+// 비밀번호 찾기 시 생성된 임시 비밀번호를 사용자의 이메일로 발송하는 함수입니다.
+export async function sendPasswordResetEmail(params: { email: string; tempPassword: string }) {
+  const transporter = createMailTransport()
+  const from = getMailFromAddress()
+
+  // 이메일 제목과 본문을 설정하여 임시 비밀번호 안내 메일을 발송합니다.
+  await transporter.sendMail({
+    from,
+    to: params.email,
+    subject: '[CONNECT] 임시 비밀번호 안내',
+    text: `CONNECT 임시 비밀번호 안내입니다.\n\n임시 비밀번호: ${params.tempPassword}\n\n로그인 후 반드시 비밀번호를 변경해 주세요.`,
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111827;">
+        <h2 style="margin-bottom: 16px;">CONNECT 임시 비밀번호 안내</h2>
+        <p>요청하신 비밀번호 찾기에 대한 임시 비밀번호가 발급되었습니다.</p>
+        <div style="margin: 24px 0; padding: 16px; background: #f3f4f6; border-radius: 12px; font-size: 24px; font-weight: 700; letter-spacing: 2px; text-align: center;">
+          ${params.tempPassword}
+        </div>
+        <p style="color: #dc2626; font-weight: bold;">보안을 위해 로그인 즉시 [마이페이지 > 개인정보 수정] 등에서<br/>새로운 비밀번호로 변경하시기 바랍니다.</p>
+      </div>
+    `,
+  })
+}

@@ -32,7 +32,7 @@ export default function ForgetPassword() {
 
       <InputField type="email" placeholder="이메일 입력" value={email} onChange={(e) => setEmail(e.target.value)} />
 
-      <SendCodeButton onClick={handleSendCode}>Send code</SendCodeButton>
+      <SendCodeButton onClick={handleSendCode}>코드 전송</SendCodeButton>
     </ForgetPasswordBox>
   )
 }
@@ -60,6 +60,7 @@ const Logo = styled.div`
 const Title = styled.h2`
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
+  color: #0f172a;
 `
 
 const Subtitle = styled.p`
@@ -75,6 +76,7 @@ const InputField = styled.input`
   border-radius: 8px;
   font-size: 1rem;
   background-color: #f9f9f9;
+  color: #0f172a;
 `
 
 const SendCodeButton = styled.button`
