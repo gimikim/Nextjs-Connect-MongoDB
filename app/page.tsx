@@ -135,12 +135,6 @@ export default function Home() {
                 <Link href="/auth?type=sign-up" className="transition hover:text-black">
                   회원가입
                 </Link>
-                <Link
-                  href="/auth?type=login"
-                  className="rounded-md bg-slate-900 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-slate-800"
-                >
-                  시작하기
-                </Link>
               </div>
             )}
           </div>

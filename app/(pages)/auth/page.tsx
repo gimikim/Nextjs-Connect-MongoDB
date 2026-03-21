@@ -5,9 +5,10 @@ import styled from 'styled-components'
 import SignUp from './Signup'
 import ForgetPassword from './ForgetPass'
 import ResetPassword from './ResetPassword'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 
 function AuthContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const type = searchParams.get('type') ?? 'login'
 
@@ -29,11 +30,14 @@ function AuthContent() {
         throw new Error('Not logged in')
       })
       .then((data) => {
-        if (data.user) setLoggedInUser(data.user)
+        if (data.user) {
+          // 이미 로그인 되어 있는 회원이 로그인 페이지로 왔을 경우 메인 페이지로 즉시 돌려보냅니다.
+          window.location.replace('/')
+        }
       })
       .catch(() => setLoggedInUser(null))
       .finally(() => setIsCheckingSession(false))
-  }, [])
+  }, [router])
 
   // 백엔드 로그인 API로 사용자 정보를 보내 인증을 시도하는 핸들러입니다.
   const handleLogin = async () => {
@@ -49,19 +53,14 @@ function AuthContent() {
 
     if (res.ok) {
       alert(data.message || '로그인에 성공했습니다.')
-      // 로그인 완료 시 내 정보를 상태에 업데이트하여 UI 즉시 전환
-      setLoggedInUser(data.user)
+      // 로그인 완료 직후 쇼핑몰 메인 페이지로 자동 이동시킵니다.
+      window.location.href = '/'
     } else {
       alert(data.message || '로그인에 실패했습니다.')
     }
   }
 
-  // 로그아웃 버튼
-  const handleLogout = async () => {
-    await fetch('/api/logout', { method: 'POST' })
-    setLoggedInUser(null)
-    alert('로그아웃 되었습니다.')
-  }
+
 
   if (isCheckingSession) {
     return (
@@ -73,25 +72,8 @@ function AuthContent() {
     )
   }
 
-  // 이미 로그인(세션 유지) 상태라면, 로그인 폼 대신 환영 문구를 띄워줍니다.
-  if (loggedInUser && type === 'login') {
-    return (
-      <Container>
-        <LoginBox>
-          <Logo>CONNECT</Logo>
-          <Title>환영합니다!</Title>
-          <Subtitle>
-            현재 <strong>{loggedInUser.username}</strong> 계정으로
-            <br />
-            안전하게 로그인되어 있습니다.
-          </Subtitle>
-          <LoginButton onClick={handleLogout} style={{ marginTop: '2rem' }}>
-            로그아웃
-          </LoginButton>
-        </LoginBox>
-      </Container>
-    )
-  }
+  // 이미 로그인(세션 유지) 상태라면, 로그인 폼 대신 위 useEffect에 의해 메인으로 리다이렉트 됩니다.
+  if (loggedInUser) return null
 
   return (
     <Container>
