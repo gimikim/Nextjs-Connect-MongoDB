@@ -4,6 +4,7 @@ import { useState, Suspense } from 'react'
 import styled from 'styled-components'
 import SignUp from './Signup'
 import ForgetPassword from './ForgetPass'
+import ResetPassword from './ResetPassword'
 import { useSearchParams } from 'next/navigation'
 
 function AuthContent() {
@@ -27,10 +28,13 @@ function AuthContent() {
       body: JSON.stringify({ username, password, role }),
     })
 
+    const data = await res.json()
+
     if (res.ok) {
-      alert('로그인에 성공했습니다.')
+      alert(data.message || '로그인에 성공했습니다.')
+      // 보통 여기서 메인 홈 화면('/') 등으로 이동시킵니다.
     } else {
-      alert('로그인에 실패했습니다.')
+      alert(data.message || '로그인에 실패했습니다.')
     }
   }
 
@@ -87,6 +91,8 @@ function AuthContent() {
       {type === 'sign-up' && <SignUp />}
 
       {type === 'forgetpass' && <ForgetPassword />}
+
+      {type === 'reset-password' && <ResetPassword />}
     </Container>
   )
 }

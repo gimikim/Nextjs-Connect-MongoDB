@@ -32,12 +32,27 @@ export function isPasswordSameAsUsername(password: string, username: string) {
   return password.trim().toLowerCase() === username.trim().toLowerCase()
 }
 
+// 4. 영문, 숫자, 특수문자 중 2가지 이상이 조합되었는지 검사하는 함수입니다.
+export function hasTwoOrMoreCharacterTypes(password: string) {
+  let typeCount = 0
+  if (/[a-zA-Z]/.test(password)) typeCount++ // 영문 포함
+  if (/[0-9]/.test(password)) typeCount++ // 숫자 포함
+  if (/[^a-zA-Z0-9\s]/.test(password)) typeCount++ // 특수문자(공백 제외) 포함
+
+  return typeCount >= 2
+}
+
 // 위에서 만든 1번, 2번, 3번 검사 함수들을 모두 통과하는지 확인하고,
 // 실패한 경우 화면에 보여줄 '에러 메시지 텍스트'를 돌려주는 메인 검증 함수입니다.
 export function getPasswordValidationMessage(password: string, username: string) {
   // 길이가 맞지 않으면 에러 메시지 반환
   if (!isPasswordLengthValid(password)) {
     return '비밀번호는 8자 이상 15자 이하로 입력해 주세요.'
+  }
+
+  // 2가지 이상 조합이 아니면 에러 메시지 반환
+  if (!hasTwoOrMoreCharacterTypes(password)) {
+    return '영문, 숫자, 특수문자 중 2가지 이상을 조합해 주세요.'
   }
 
   // 3번 이상 연속된 문자가 있으면 에러 메시지 반환
@@ -61,4 +76,4 @@ export function isPasswordValid(password: string, username: string) {
 
 // 회원가입 화면 등에서 비밀번호 입력창 밑에 기본으로 보여줄 안내 문구입니다.
 export const PASSWORD_REQUIREMENTS_MESSAGE =
-  '비밀번호는 8자 이상 15자 이하로 입력하고, 동일한 문자/숫자 3자 이상 연속 사용은 피해 주세요. 또한 아이디를 비밀번호로 사용할 수 없습니다.'
+  '영문/숫자/특수문자 중 2가지 이상을 조합하여 8~15자로 입력하고, 동일한 문자 3회 연속 사용을 피해 주세요. 아이디를 비밀번호로 사용할 수 없습니다.'

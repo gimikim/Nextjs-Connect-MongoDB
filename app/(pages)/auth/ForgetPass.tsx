@@ -4,7 +4,8 @@ import { useState } from 'react'
 import styled from 'styled-components'
 
 export default function ForgetPassword() {
-  // 사용자가 입력할 이메일 상태를 관리합니다.
+  // 사용자가 입력할 이름과 이메일 상태를 관리합니다.
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
 
   // 비밀번호 재설정 이메일을 전송하도록 백엔드 API에 요청하는 함수입니다.
@@ -14,13 +15,15 @@ export default function ForgetPassword() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({ name, email }),
     })
+
+    const data = await res.json()
 
     if (res.ok) {
       alert('재설정 안내를 전송했습니다.')
     } else {
-      alert('재설정 안내 전송에 실패했습니다.')
+      alert(data.message || '재설정 안내 전송에 실패했습니다.')
     }
   }
 
@@ -28,11 +31,12 @@ export default function ForgetPassword() {
     <ForgetPasswordBox>
       <Logo>CONNECT</Logo>
       <Title>비밀번호를 잊으셨나요?</Title>
-      <Subtitle>가입한 이메일을 입력하면 비밀번호 재설정 절차를 진행할 수 있습니다.</Subtitle>
+      <Subtitle>가입할 때 사용한 이름과 이메일을 입력해 주세요.</Subtitle>
 
+      <InputField type="text" placeholder="이름 입력" value={name} onChange={(e) => setName(e.target.value)} />
       <InputField type="email" placeholder="이메일 입력" value={email} onChange={(e) => setEmail(e.target.value)} />
 
-      <SendCodeButton onClick={handleSendCode}>코드 전송</SendCodeButton>
+      <SendCodeButton onClick={handleSendCode}>재설정 링크 전송</SendCodeButton>
     </ForgetPasswordBox>
   )
 }
