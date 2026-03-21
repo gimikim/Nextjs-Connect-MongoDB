@@ -60,8 +60,6 @@ function AuthContent() {
     }
   }
 
-
-
   if (isCheckingSession) {
     return (
       <Container>

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
 import LogoutButton from './components/LogoutButton'
+import ProductGrid from './components/ProductGrid'
 
 // 샘플 상품 데이터 리스트 (8종)
 const products = [
@@ -9,6 +10,7 @@ const products = [
     id: 1,
     name: '시그니처 오버핏 트렌치 코트',
     brand: 'MODERN',
+    category: '의류',
     price: 159000,
     discount: 30,
     image: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=600&q=80',
@@ -17,6 +19,7 @@ const products = [
     id: 2,
     name: '프리미엄 레더 스니커즈 블랑',
     brand: 'SNEAKERS',
+    category: '신발',
     price: 89000,
     discount: 15,
     image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&q=80',
@@ -25,6 +28,7 @@ const products = [
     id: 3,
     name: '노이즈 캔슬링 하이파이 헤드폰',
     brand: 'SOUND.X',
+    category: '가전',
     price: 299000,
     discount: 20,
     image: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=600&q=80',
@@ -33,6 +37,7 @@ const products = [
     id: 4,
     name: '미니멀 세라믹 머그 잔 세트',
     brand: 'LIVING',
+    category: '리빙',
     price: 25000,
     discount: 10,
     image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=600&q=80',
@@ -41,6 +46,7 @@ const products = [
     id: 5,
     name: '에센셜 코튼 100% 베이직 티셔츠',
     brand: 'MODERN',
+    category: '의류',
     price: 29000,
     discount: 0,
     image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80',
@@ -49,6 +55,7 @@ const products = [
     id: 6,
     name: '스마트 피트니스 스포츠 워치',
     brand: 'TECH',
+    category: '가전',
     price: 159000,
     discount: 25,
     image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&q=80',
@@ -57,6 +64,7 @@ const products = [
     id: 7,
     name: '빈티지 워싱 와이드 데님 팬츠',
     brand: 'STYLE',
+    category: '의류',
     price: 59000,
     discount: 40,
     image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&q=80',
@@ -65,6 +73,7 @@ const products = [
     id: 8,
     name: '천연 유기농 아로마 디퓨저',
     brand: 'HOME',
+    category: '리빙',
     price: 35000,
     discount: 5,
     image: 'https://images.unsplash.com/photo-1608528577891-eb05fcd393ed?w=600&q=80',
@@ -168,62 +177,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. 진열 상품 영역 (Product Grid) */}
-      <main className="mx-auto max-w-7xl px-4 py-20">
-        <div className="mb-10 flex items-end justify-between">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">🔥 실시간 추천 아이템</h2>
-            <p className="mt-2 font-medium text-slate-500">지금 사용자들에게 가장 사랑받는 베스트셀러</p>
-          </div>
-          <Link href="#" className="hidden font-bold text-blue-600 hover:underline sm:inline-block">
-            전체 상품 보기 &rarr;
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-3 lg:grid-cols-4">
-          {products.map((p) => {
-            const finalPrice = (p.price * (100 - p.discount)) / 100
-            return (
-              <div key={p.id} className="group flex cursor-pointer flex-col">
-                <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-2xl border border-slate-200/50 bg-slate-100 shadow-sm">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={p.image}
-                    alt={p.name}
-                    className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                  />
-                  {p.discount > 0 && (
-                    <div className="absolute left-3 top-3 rounded-md bg-red-500 px-2 py-1.5 text-[0.7rem] font-bold tracking-wider text-white shadow-md">
-                      {p.discount >= 20 ? 'HOT ITEM' : 'BEST'}
-                    </div>
-                  )}
-                </div>
-
-                <p className="mb-1 text-xs font-bold text-slate-400">{p.brand}</p>
-                <h3 className="mb-2 line-clamp-2 text-[0.95rem] font-semibold leading-snug text-slate-800 group-hover:underline md:text-base">
-                  {p.name}
-                </h3>
-
-                <div className="mt-auto flex flex-wrap items-baseline gap-2">
-                  {p.discount > 0 ? (
-                    <>
-                      <span className="text-lg font-bold text-red-500 md:text-xl">{p.discount}%</span>
-                      <span className="text-lg font-bold text-slate-900 md:text-xl">
-                        {finalPrice.toLocaleString()}원
-                      </span>
-                      <span className="mt-1 w-full text-xs font-medium text-slate-400 line-through sm:mt-0 sm:w-auto sm:text-sm">
-                        {p.price.toLocaleString()}원
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-lg font-bold text-slate-900 md:text-xl">{p.price.toLocaleString()}원</span>
-                  )}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </main>
+      {/* 3. 진열 상품 플로팅 컴포넌트 (Product Grid - Client Component) */}
+      <ProductGrid products={products} />
 
       {/* 심플 푸터 */}
       <footer className="mt-10 border-t border-slate-100 bg-slate-50 py-12">

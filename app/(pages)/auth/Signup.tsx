@@ -400,6 +400,7 @@ export default function SignUp() {
             placeholder="아이디"
             value={form.username}
             onChange={(e) => updateField('username', e.target.value)}
+            autoComplete="off"
           />
           <ActionButton type="button" onClick={handleCheckUsername} disabled={isCheckingUsername}>
             {isCheckingUsername ? '확인 중' : '중복 확인'}
@@ -413,6 +414,7 @@ export default function SignUp() {
           placeholder="비밀번호"
           value={form.password}
           onChange={(e) => updateField('password', e.target.value)}
+          autoComplete="new-password"
         />
         {form.password ? <HelperText $success={passwordValid}>{passwordLengthMessage}</HelperText> : null}
 
@@ -422,6 +424,7 @@ export default function SignUp() {
           placeholder="비밀번호 확인"
           value={form.confirmPassword}
           onChange={(e) => updateField('confirmPassword', e.target.value)}
+          autoComplete="new-password"
         />
         {form.confirmPassword ? <HelperText $success={passwordMatched}>{passwordMatchMessage}</HelperText> : null}
 
