@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useEffect } from 'react'
 import styled from 'styled-components'
 import SignUp from './Signup'
 import ForgetPassword from './ForgetPass'
@@ -8,15 +8,32 @@ import ResetPassword from './ResetPassword'
 import { useSearchParams } from 'next/navigation'
 
 function AuthContent() {
-  // URL의 쿼리 파라미터(?type=값)를 읽어와서 화면 모드를 결정합니다.
-  // 기본값은 'login' 화면입니다.
   const searchParams = useSearchParams()
   const type = searchParams.get('type') ?? 'login'
 
-  // 로그인 폼에 입력되는 아이디, 비밀번호, 역할(일반/사업자) 상태를 관리합니다.
+  // 자동 로그인 테스트용 상태
+  const [isCheckingSession, setIsCheckingSession] = useState(true)
+  const [loggedInUser, setLoggedInUser] = useState<{ username: string; role: string } | null>(null)
+
+  // 로그인 폼에 입력되는 아이디, 비밀번호, 역할(일반/사업자) 등 상태를 관리합니다.
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState('personal')
+  const [autoLogin, setAutoLogin] = useState(false)
+
+  // 화면이 처음 켜질 때 'auth_token' 쿠키가 살아있는지 검사합니다.
+  useEffect(() => {
+    fetch('/api/me')
+      .then((res) => {
+        if (res.ok) return res.json()
+        throw new Error('Not logged in')
+      })
+      .then((data) => {
+        if (data.user) setLoggedInUser(data.user)
+      })
+      .catch(() => setLoggedInUser(null))
+      .finally(() => setIsCheckingSession(false))
+  }, [])
 
   // 백엔드 로그인 API로 사용자 정보를 보내 인증을 시도하는 핸들러입니다.
   const handleLogin = async () => {
@@ -25,17 +42,55 @@ function AuthContent() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ username, password, role }),
+      body: JSON.stringify({ username, password, role, autoLogin }),
     })
 
     const data = await res.json()
 
     if (res.ok) {
       alert(data.message || '로그인에 성공했습니다.')
-      // 보통 여기서 메인 홈 화면('/') 등으로 이동시킵니다.
+      // 로그인 완료 시 내 정보를 상태에 업데이트하여 UI 즉시 전환
+      setLoggedInUser(data.user)
     } else {
       alert(data.message || '로그인에 실패했습니다.')
     }
+  }
+
+  // 로그아웃 버튼
+  const handleLogout = async () => {
+    await fetch('/api/logout', { method: 'POST' })
+    setLoggedInUser(null)
+    alert('로그아웃 되었습니다.')
+  }
+
+  if (isCheckingSession) {
+    return (
+      <Container>
+        <LoginBox>
+          <Subtitle>자동 로그인 상태를 확인 중입니다...</Subtitle>
+        </LoginBox>
+      </Container>
+    )
+  }
+
+  // 이미 로그인(세션 유지) 상태라면, 로그인 폼 대신 환영 문구를 띄워줍니다.
+  if (loggedInUser && type === 'login') {
+    return (
+      <Container>
+        <LoginBox>
+          <Logo>CONNECT</Logo>
+          <Title>환영합니다!</Title>
+          <Subtitle>
+            현재 <strong>{loggedInUser.username}</strong> 계정으로
+            <br />
+            안전하게 로그인되어 있습니다.
+          </Subtitle>
+          <LoginButton onClick={handleLogout} style={{ marginTop: '2rem' }}>
+            로그아웃
+          </LoginButton>
+        </LoginBox>
+      </Container>
+    )
   }
 
   return (
@@ -62,6 +117,13 @@ function AuthContent() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+
+          <AutoLoginWrapper>
+            <label>
+              <input type="checkbox" checked={autoLogin} onChange={(e) => setAutoLogin(e.target.checked)} />
+              <span>자동 로그인</span>
+            </label>
+          </AutoLoginWrapper>
 
           <LoginButton onClick={handleLogin}>로그인</LoginButton>
 
@@ -159,12 +221,35 @@ const Tab = styled.div<{ $active: boolean }>`
 const InputField = styled.input`
   width: 100%;
   padding: 0.75rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
   background-color: #f9f9f9;
   color: #0f172a; /* 입력하는 글자 색상을 어두운 검정색으로 설정 */
+`
+
+const AutoLoginWrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1.5rem;
+  margin-left: 0.2rem;
+
+  label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #475569;
+  }
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    margin-right: 0.4rem;
+    cursor: pointer;
+    accent-color: #0f172a;
+  }
 `
 
 const LoginButton = styled.button`

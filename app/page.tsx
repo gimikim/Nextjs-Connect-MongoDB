@@ -1,79 +1,241 @@
-import Image from 'next/image'
+import Link from 'next/link'
+import { cookies } from 'next/headers'
+import jwt from 'jsonwebtoken'
+import LogoutButton from './components/LogoutButton'
+
+// 샘플 상품 데이터 리스트 (8종)
+const products = [
+  {
+    id: 1,
+    name: '시그니처 오버핏 트렌치 코트',
+    brand: 'MODERN',
+    price: 159000,
+    discount: 30,
+    image: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=600&q=80',
+  },
+  {
+    id: 2,
+    name: '프리미엄 레더 스니커즈 블랑',
+    brand: 'SNEAKERS',
+    price: 89000,
+    discount: 15,
+    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&q=80',
+  },
+  {
+    id: 3,
+    name: '노이즈 캔슬링 하이파이 헤드폰',
+    brand: 'SOUND.X',
+    price: 299000,
+    discount: 20,
+    image: 'https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=600&q=80',
+  },
+  {
+    id: 4,
+    name: '미니멀 세라믹 머그 잔 세트',
+    brand: 'LIVING',
+    price: 25000,
+    discount: 10,
+    image: 'https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=600&q=80',
+  },
+  {
+    id: 5,
+    name: '에센셜 코튼 100% 베이직 티셔츠',
+    brand: 'MODERN',
+    price: 29000,
+    discount: 0,
+    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80',
+  },
+  {
+    id: 6,
+    name: '스마트 피트니스 스포츠 워치',
+    brand: 'TECH',
+    price: 159000,
+    discount: 25,
+    image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&q=80',
+  },
+  {
+    id: 7,
+    name: '빈티지 워싱 와이드 데님 팬츠',
+    brand: 'STYLE',
+    price: 59000,
+    discount: 40,
+    image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=600&q=80',
+  },
+  {
+    id: 8,
+    name: '천연 유기농 아로마 디퓨저',
+    brand: 'HOME',
+    price: 35000,
+    discount: 5,
+    image: 'https://images.unsplash.com/photo-1608528577891-eb05fcd393ed?w=600&q=80',
+  },
+]
 
 export default function Home() {
-  return (
-    <div className="grid min-h-screen grid-rows-[20px_1fr_20px] items-center justify-items-center gap-16 p-8 pb-20 font-[family-name:var(--font-geist-sans)] sm:p-20">
-      <main className="row-start-2 flex flex-col items-center gap-8 sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-center font-[family-name:var(--font-geist-mono)] text-sm sm:text-left">
-          <li className="mb-2">
-            Get started by editing{' '}
-            <code className="rounded bg-black/[.05] px-1 py-0.5 font-semibold dark:bg-white/[.06]">app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  // 쿠키에서 jwt 토큰을 가져와 로그인(세션) 여부를 아주 빠르게 파악합니다. (서버 사이드 렌더링)
+  const cookieStore = cookies()
+  const token = cookieStore.get('auth_token')?.value
+  let user: { username: string; role: string } | null = null
 
-        <div className="flex flex-col items-center gap-4 sm:flex-row">
-          <a
-            className="flex h-10 items-center justify-center gap-2 rounded-full border border-solid border-transparent bg-foreground px-4 text-sm text-background transition-colors hover:bg-[#383838] sm:h-12 sm:px-5 sm:text-base dark:hover:bg-[#ccc]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="flex h-10 items-center justify-center rounded-full border border-solid border-black/[.08] px-4 text-sm transition-colors hover:border-transparent hover:bg-[#f2f2f2] sm:h-12 sm:min-w-44 sm:px-5 sm:text-base dark:border-white/[.145] dark:hover:bg-[#1a1a1a]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  if (token) {
+    try {
+      const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-string-only-for-development'
+      user = jwt.verify(token, jwtSecret) as { username: string; role: string }
+    } catch {
+      // 잘못되거나 만료된 토큰의 경우 무시합니다.
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-white font-sans text-slate-900">
+      {/* 1. 글로벌 네비게이션 헤더 (GNB) */}
+      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+          <div className="flex items-center gap-10">
+            <Link href="/" className="text-2xl font-black tracking-tighter text-slate-900">
+              CONNECT
+            </Link>
+            <nav className="hidden gap-6 text-[0.95rem] font-semibold text-slate-600 md:flex">
+              <Link href="#" className="transition hover:text-black">
+                베스트
+              </Link>
+              <Link href="#" className="transition hover:text-black">
+                신상품
+              </Link>
+              <Link href="#" className="flex items-center gap-1 text-blue-600 transition hover:text-blue-800">
+                기획전 ⚡
+              </Link>
+              <Link href="#" className="transition hover:text-black">
+                브랜드
+              </Link>
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-5 text-[0.9rem] font-medium text-slate-600">
+            {user ? (
+              // 로그인 상태일 때
+              <div className="flex items-center gap-5">
+                <span className="text-slate-800">
+                  <strong className="mr-1 font-bold text-black">{user.username}</strong>님
+                </span>
+                <Link href="#" className="transition hover:text-black">
+                  장바구니(0)
+                </Link>
+                <Link href="#" className="transition hover:text-black">
+                  마이페이지
+                </Link>
+                <LogoutButton />
+              </div>
+            ) : (
+              // 비로그인 상태일 때
+              <div className="flex items-center gap-5">
+                <Link href="/auth?type=login" className="transition hover:text-black">
+                  로그인
+                </Link>
+                <Link href="/auth?type=sign-up" className="transition hover:text-black">
+                  회원가입
+                </Link>
+                <Link
+                  href="/auth?type=login"
+                  className="rounded-md bg-slate-900 px-5 py-2.5 font-semibold text-white shadow-sm transition hover:bg-slate-800"
+                >
+                  시작하기
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* 2. 메인 배너 영역 (Hero) */}
+      <section className="relative overflow-hidden bg-slate-50 py-24 sm:py-32">
+        {/* 장식용 원형 배경 */}
+        <div className="pointer-events-none absolute right-0 top-0 h-96 w-96 -translate-y-12 translate-x-1/3 rounded-full bg-blue-100/50 blur-3xl"></div>
+        <div className="pointer-events-none absolute bottom-0 left-0 h-72 w-72 -translate-x-1/3 translate-y-1/3 rounded-full bg-purple-100/50 blur-3xl"></div>
+
+        <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center gap-5 px-4 text-center">
+          <span className="mb-2 text-sm font-bold tracking-widest text-blue-600">2026 FALL COLLECTION</span>
+          <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-slate-900 md:text-5xl lg:text-6xl">
+            나를 완성하는
+            <br />
+            가장 완벽한 쇼핑
+          </h1>
+          <p className="mb-4 mt-2 max-w-lg text-lg text-slate-500 md:text-xl">
+            CONNECT에서 엄선한 최고의 브랜드와 트렌디한 아이템들을 지금 바로 만나보세요.
+          </p>
+          <div className="mt-2">
+            <Link
+              href="#"
+              className="inline-block transform rounded-full bg-blue-600 px-8 py-4 font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-xl"
+            >
+              프리미엄 기획전 구경하기
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 3. 진열 상품 영역 (Product Grid) */}
+      <main className="mx-auto max-w-7xl px-4 py-20">
+        <div className="mb-10 flex items-end justify-between">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">🔥 실시간 추천 아이템</h2>
+            <p className="mt-2 font-medium text-slate-500">지금 사용자들에게 가장 사랑받는 베스트셀러</p>
+          </div>
+          <Link href="#" className="hidden font-bold text-blue-600 hover:underline sm:inline-block">
+            전체 상품 보기 &rarr;
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 gap-x-6 gap-y-12 md:grid-cols-3 lg:grid-cols-4">
+          {products.map((p) => {
+            const finalPrice = (p.price * (100 - p.discount)) / 100
+            return (
+              <div key={p.id} className="group flex cursor-pointer flex-col">
+                <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-2xl border border-slate-200/50 bg-slate-100 shadow-sm">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  />
+                  {p.discount > 0 && (
+                    <div className="absolute left-3 top-3 rounded-md bg-red-500 px-2 py-1.5 text-[0.7rem] font-bold tracking-wider text-white shadow-md">
+                      {p.discount >= 20 ? 'HOT ITEM' : 'BEST'}
+                    </div>
+                  )}
+                </div>
+
+                <p className="mb-1 text-xs font-bold text-slate-400">{p.brand}</p>
+                <h3 className="mb-2 line-clamp-2 text-[0.95rem] font-semibold leading-snug text-slate-800 group-hover:underline md:text-base">
+                  {p.name}
+                </h3>
+
+                <div className="mt-auto flex flex-wrap items-baseline gap-2">
+                  {p.discount > 0 ? (
+                    <>
+                      <span className="text-lg font-bold text-red-500 md:text-xl">{p.discount}%</span>
+                      <span className="text-lg font-bold text-slate-900 md:text-xl">
+                        {finalPrice.toLocaleString()}원
+                      </span>
+                      <span className="mt-1 w-full text-xs font-medium text-slate-400 line-through sm:mt-0 sm:w-auto sm:text-sm">
+                        {p.price.toLocaleString()}원
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-lg font-bold text-slate-900 md:text-xl">{p.price.toLocaleString()}원</span>
+                  )}
+                </div>
+              </div>
+            )
+          })}
         </div>
       </main>
-      <footer className="row-start-3 flex flex-wrap items-center justify-center gap-6">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image aria-hidden src="https://nextjs.org/icons/file.svg" alt="File icon" width={16} height={16} />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image aria-hidden src="https://nextjs.org/icons/window.svg" alt="Window icon" width={16} height={16} />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image aria-hidden src="https://nextjs.org/icons/globe.svg" alt="Globe icon" width={16} height={16} />
-          Go to nextjs.org →
-        </a>
+
+      {/* 심플 푸터 */}
+      <footer className="mt-10 border-t border-slate-100 bg-slate-50 py-12">
+        <div className="mx-auto max-w-7xl px-4 text-center text-sm text-slate-400">
+          &copy; 2026 CONNECT PLATFORM. All rights reserved.
+        </div>
       </footer>
     </div>
   )

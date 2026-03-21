@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
+import jwt from 'jsonwebtoken'
 import dbConnect from '@/db/dbConnect'
 import User from '@/db/models/user'
 
@@ -13,7 +14,7 @@ function hashPassword(password: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { username, password, role } = await req.json()
+    const { username, password, role, autoLogin } = await req.json()
 
     // 1. 필수 입력값 검사
     if (!username || !password) {
@@ -45,8 +46,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: '비밀번호가 일치하지 않습니다.' }, { status: 401 })
     }
 
-    // 6. 모든 인증 통과 시 성공 응답 (실제 서비스에서는 이 곳에서 JWT 토큰이나 세션을 발급/쿠키 저장합니다.)
-    return NextResponse.json({
+    // 6. JWT 발급 및 브라우저 쿠키 설정
+    const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-string-only-for-development'
+
+    // 자동 로그인 여부에 따라 토큰 자체의 설정된 유효기간도 다르게 적용 (자동 로그인이면 30일, 아니면 1일)
+    const token = jwt.sign({ userId: user._id, username: user.username, role: userRole }, jwtSecret, {
+      expiresIn: autoLogin ? '30d' : '1d',
+    })
+
+    const response = NextResponse.json({
       message: '로그인에 성공했습니다.',
       user: {
         name: user.name,
@@ -55,6 +63,21 @@ export async function POST(req: NextRequest) {
         role: userRole,
       },
     })
+
+    // HTTP-only 방식으로 안전하게 브라우저 쿠키에 구워냅니다.
+    // 자동 로그인이 체크되어 있으면 maxAge를 30일로 설정하여 브라우저를 닫아도 유지되게 합니다.
+    // 체크되어 있지 않으면 maxAge를 빼서 브라우저(세션) 종료 시 쿠키가 완전히 삭제되게 만듭니다.
+    response.cookies.set({
+      name: 'auth_token',
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      ...(autoLogin && { maxAge: 30 * 24 * 60 * 60 }), // 30일 (초 단위)
+    })
+
+    return response
   } catch (error) {
     console.error('Login error:', error)
     return NextResponse.json({ message: '로그인 처리 중 서버 오류가 발생했습니다.' }, { status: 500 })
