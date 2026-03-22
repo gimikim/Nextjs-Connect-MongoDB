@@ -19,6 +19,7 @@ export default function ProductReviewSection({ productId }: { productId: number 
   const [stats, setStats] = useState({ total: 0, avg: 0 })
   const [loading, setLoading] = useState(true)
   const [editingReview, setEditingReview] = useState<ReviewType | null>(null)
+  const [sortType, setSortType] = useState<'latest' | 'best'>('latest')
 
   const handleDelete = async (reviewId: string) => {
     if (!confirm('정말로 이 리뷰를 삭제하시겠습니까?')) return
@@ -68,20 +69,46 @@ export default function ProductReviewSection({ productId }: { productId: number 
     )
   }
 
+  const sortedReviews = [...reviews].sort((a, b) => {
+    if (sortType === 'best') {
+      if (b.rating !== a.rating) return b.rating - a.rating
+    }
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  })
+
   return (
     <div className="mt-12 w-full rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:p-10">
-      <div className="mb-10 flex flex-col items-center justify-center gap-4 border-b border-slate-100 pb-8 text-center sm:flex-row sm:justify-start sm:gap-8 sm:text-left">
-        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">상품 리뷰</h2>
-        <div className="flex items-center gap-4 rounded-2xl border border-slate-100/50 bg-slate-50 px-6 py-4">
-          <StarDisplay rating={Math.round(stats.avg)} />
-          <div className="text-xl font-black text-slate-900">
-            {stats.avg.toFixed(1)} <span className="text-sm font-semibold text-slate-400">/ 5</span>
-          </div>
-          <div className="ml-2 border-l-2 border-slate-200 pl-4 text-sm font-bold text-slate-500">
-            총 <span className="text-blue-600 underline decoration-blue-200 underline-offset-4">{stats.total}</span>개의
-            생생한 리뷰
+      <div className="mb-10 flex flex-col items-center justify-between gap-4 border-b border-slate-100 pb-8 text-center sm:flex-row sm:text-left">
+        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:justify-start sm:gap-8">
+          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">상품 리뷰</h2>
+          <div className="flex items-center gap-4 rounded-2xl border border-slate-100/50 bg-slate-50 px-6 py-4">
+            <StarDisplay rating={Math.round(stats.avg)} />
+            <div className="text-xl font-black text-slate-900">
+              {stats.avg.toFixed(1)} <span className="text-sm font-semibold text-slate-400">/ 5</span>
+            </div>
+            <div className="ml-2 border-l-2 border-slate-200 pl-4 text-sm font-bold text-slate-500">
+              총 <span className="text-blue-600 underline decoration-blue-200 underline-offset-4">{stats.total}</span>
+              개의 생생한 리뷰
+            </div>
           </div>
         </div>
+
+        {reviews.length > 0 && (
+          <div className="flex shrink-0 gap-2 rounded-xl bg-slate-50 p-1">
+            <button
+              onClick={() => setSortType('latest')}
+              className={`rounded-lg px-4 py-2 text-sm font-bold transition-all ${sortType === 'latest' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              최신순
+            </button>
+            <button
+              onClick={() => setSortType('best')}
+              className={`rounded-lg px-4 py-2 text-sm font-bold transition-all ${sortType === 'best' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+            >
+              베스트순
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-6">
@@ -94,7 +121,7 @@ export default function ProductReviewSection({ productId }: { productId: number 
             </p>
           </div>
         ) : (
-          reviews.map((review) => (
+          sortedReviews.map((review) => (
             <div
               key={review._id}
               className="flex w-full flex-col overflow-hidden rounded-3xl border border-slate-100 bg-white p-6 shadow-[0_4px_20px_rgb(0,0,0,0.03)] transition-all hover:border-blue-100 hover:shadow-lg sm:p-8"
