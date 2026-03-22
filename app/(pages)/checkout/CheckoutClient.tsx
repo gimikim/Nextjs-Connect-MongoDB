@@ -2,6 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Script from 'next/script'
+
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    TossPayments: any
+  }
+}
 
 interface CheckoutItem {
   id: number
@@ -84,13 +92,48 @@ export default function CheckoutClient({ user }: { user: UserData | null }) {
 
   const handlePayment = (e: React.FormEvent) => {
     e.preventDefault()
-    alert('성공적으로 결제가 완료되었습니다!')
-    localStorage.removeItem('checkoutItems')
-    router.push('/')
+
+    if (!window.TossPayments) {
+      alert('결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해 주세요.')
+      return
+    }
+
+    // 1. 임시 폼 데이터 저장 (결제 브라우저 도메인 이탈 후 승인 시 사용하기 위함)
+    localStorage.setItem('checkoutFormData', JSON.stringify(formData))
+
+    // 2. 랜덤한 고유 주문번호 발급
+    const orderId = 'TOSS_' + new Date().getTime() + '_' + Math.floor(Math.random() * 1000)
+
+    // 3. 토스페이먼츠(Toss Payments) 테스트 API 호출
+    const tossPayments = window.TossPayments('test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq') // 토스페이먼츠 공식 공개 테스트 공개키
+
+    tossPayments
+      .requestPayment('카드', {
+        amount: finalAmount,
+        orderId: orderId,
+        orderName:
+          checkoutItems.length > 1
+            ? `${checkoutItems[0].name} 외 ${checkoutItems.length - 1}건`
+            : checkoutItems[0].name,
+        customerName: formData.recipientName || '고객',
+        successUrl: window.location.origin + '/checkout/success', // 성공 시 돌아올 라우터
+        failUrl: window.location.origin + '/checkout/fail', // 실패 시 돌아올 라우터
+      })
+      .catch((err: unknown) => {
+        // 결제창 이탈 또는 에러
+        const error = err as { code?: string; message?: string }
+        if (error.code === 'USER_CANCEL') {
+          alert('결제를 취소하셨습니다.')
+        } else {
+          alert(error.message || '결제 중 오류가 발생했습니다.')
+        }
+      })
   }
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-slate-50 py-12 md:py-24">
+      {/* 토스페이먼츠 코어 스크립트 로딩 */}
+      <Script src="https://js.tosspayments.com/v1/payment" strategy="lazyOnload" />
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <h1 className="mb-10 text-3xl font-extrabold tracking-tight text-slate-900">주문/결제</h1>
 
@@ -101,7 +144,7 @@ export default function CheckoutClient({ user }: { user: UserData | null }) {
                 <h2 className="text-xl font-bold text-slate-900">배송지 정보</h2>
                 {user && (
                   <div className="flex items-center gap-5 text-[0.95rem] font-bold">
-                    <label className="flex cursor-pointer items-center gap-2 text-slate-700 hover:text-blue-600 transition">
+                    <label className="flex cursor-pointer items-center gap-2 text-slate-700 transition hover:text-blue-600">
                       <input
                         type="radio"
                         name="addressType"
@@ -112,7 +155,7 @@ export default function CheckoutClient({ user }: { user: UserData | null }) {
                       />
                       기존 배송지
                     </label>
-                    <label className="flex cursor-pointer items-center gap-2 text-slate-700 hover:text-blue-600 transition">
+                    <label className="flex cursor-pointer items-center gap-2 text-slate-700 transition hover:text-blue-600">
                       <input
                         type="radio"
                         name="addressType"
