@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
+import Link from 'next/link'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -24,8 +25,31 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+    <html lang="ko">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* 글로벌 로고/내비게이션 바 (모든 페이지 상단 고정) */}
+        <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
+          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <Link
+              href="/"
+              className="text-2xl font-black tracking-tighter text-blue-600 transition-colors hover:text-blue-700"
+            >
+              SHOP
+            </Link>
+            <nav className="flex items-center gap-6 text-sm font-bold text-slate-700">
+              <Link href="/cart" className="transition-colors hover:text-blue-600">
+                장바구니
+              </Link>
+              <Link href="/mypage/orders" className="transition-colors hover:text-blue-600">
+                마이페이지
+              </Link>
+            </nav>
+          </div>
+        </header>
+
+        {/* 본문 콘텐츠 영역 */}
+        <main>{children}</main>
+      </body>
     </html>
   )
 }

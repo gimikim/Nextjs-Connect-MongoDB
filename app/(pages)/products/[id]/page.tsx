@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { notFound } from 'next/navigation'
+import { notFound, useRouter } from 'next/navigation'
 import { products } from '../../../../lib/data' // 앱 데이터 저장소에서 상품 정보를 불러옵니다.
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   // URL 파라미터로 전달받은 id를 기반으로 상품 조회
   const productId = parseInt(params.id, 10)
   const product = products.find((p) => p.id === productId)
+  const router = useRouter()
 
   // 상품이 존재하지 않으면 Next.js의 notFound()를 호출하여 404 페이지를 렌더링
   if (!product) {
@@ -35,6 +36,37 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
   // 선택된 수량에 맞춰 총 결제 금액 계산
   const totalPrice = finalPrice * quantity
+
+  // 장바구니 담기 실행 함수
+  const handleAddToCart = () => {
+    // 상품 옵션 선택 검증
+    if (!selectedColor || !selectedSize) {
+      alert('색상과 사이즈를 모두 선택해 주세요.')
+      return
+    }
+
+    const cartItem = {
+      id: Date.now(), // 고유 장바구니 아이템 ID
+      productId: product.id,
+      name: product.name,
+      price: finalPrice,
+      image: selectedImage,
+      color: selectedColor,
+      size: selectedSize,
+      quantity: quantity,
+    }
+
+    // 로컬 스토리지에서 기존 장바구니 불러오기
+    const storedCart = localStorage.getItem('cart')
+    const cart = storedCart ? JSON.parse(storedCart) : []
+    
+    // 장바구니에 아이템 추가 및 저장
+    cart.push(cartItem)
+    localStorage.setItem('cart', JSON.stringify(cart))
+
+    // 장바구니 페이지로 이동
+    router.push('/cart')
+  }
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-slate-50 py-12 md:py-24">
@@ -222,7 +254,10 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
             {/* 액션 버튼 영역 */}
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-              <button className="flex-1 rounded-2xl border-2 border-slate-200 bg-white py-4 text-lg font-bold text-slate-900 transition-all hover:border-slate-900 hover:bg-slate-50 active:scale-[0.98]">
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 rounded-2xl border-2 border-slate-200 bg-white py-4 text-lg font-bold text-slate-900 transition-all hover:border-slate-900 hover:bg-slate-50 active:scale-[0.98]"
+              >
                 장바구니 담기
               </button>
               <button className="flex-1 rounded-2xl bg-blue-600 py-4 text-lg font-bold text-white shadow-[0_4px_14px_0_rgb(37,99,235,0.39)] transition-all hover:bg-blue-700 hover:shadow-[0_6px_20px_rgb(37,99,235,0.23)] active:scale-[0.98]">
