@@ -131,10 +131,13 @@ export default async function MyPage() {
           </div>
         )}
 
-        <div className="mt-12 flex cursor-not-allowed justify-center">
-          <button className="pointer-events-none cursor-not-allowed rounded-full bg-slate-100 px-8 py-3.5 font-bold text-slate-400 shadow-sm">
-            회원 정보 수정 (업데이트 준비 중)
-          </button>
+        <div className="mt-12 flex justify-center">
+          <Link
+            href="/mypage/edit"
+            className="rounded-full bg-slate-900 px-10 py-3.5 font-bold text-white shadow-md transition hover:-translate-y-1 hover:bg-slate-800 hover:shadow-lg"
+          >
+            내 정보 수정하기
+          </Link>
         </div>
       </main>
     </div>
