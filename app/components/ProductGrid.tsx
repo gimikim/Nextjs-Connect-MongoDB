@@ -2,16 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-
-export type Product = {
-  id: number
-  name: string
-  brand: string
-  category: string
-  price: number
-  discount: number
-  image: string
-}
+import { Product } from '../../lib/data' // 분리된 데이터 모듈에서 Product 타입을 가져와 타입 안정성을 유지합니다.
 
 export default function ProductGrid({ products }: { products: Product[] }) {
   const [selectedCategory, setSelectedCategory] = useState<string>('전체')
@@ -59,7 +50,8 @@ export default function ProductGrid({ products }: { products: Product[] }) {
           filteredProducts.map((p) => {
             const finalPrice = Math.floor((p.price * (100 - p.discount)) / 100)
             return (
-              <div key={p.id} className="group flex cursor-pointer flex-col">
+              // 상품 카드를 Next.js의 Link 태그로 감싸서 클릭 시 상품 상세 페이지(/products/[id])로 이동하도록 설정합니다.
+              <Link href={`/products/${p.id}`} key={p.id} className="group flex cursor-pointer flex-col">
                 <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-2xl border border-slate-200/50 bg-slate-100 shadow-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -94,7 +86,7 @@ export default function ProductGrid({ products }: { products: Product[] }) {
                     <span className="text-lg font-bold text-slate-900 md:text-xl">{p.price.toLocaleString()}원</span>
                   )}
                 </div>
-              </div>
+              </Link>
             )
           })
         )}
