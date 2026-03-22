@@ -8,6 +8,7 @@ export default function MyPageNav() {
 
   const navItems = [
     { name: '내 정보', href: '/mypage', icon: '👤' },
+    { name: '장바구니', href: '/cart', icon: '🛒' },
     { name: '주문 / 배송 내역', href: '/mypage/orders', icon: '📦' },
     { name: '나의 리뷰 관리', href: '/mypage/reviews', icon: '⭐' },
     { name: '기본 정보 수정', href: '/mypage/edit', icon: '⚙️' },

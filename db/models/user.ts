@@ -57,6 +57,23 @@ const UserSchema = new mongoose.Schema(
 
     // 회원 정보(비번, 통화, 주소 등)가 마지막으로 수정(업데이트)된 날짜와 시간입니다.
     updatedAt: { type: Date, default: Date.now },
+
+    // 유저 개인화된 장바구니 내역 (다바이스 간 동기화)
+    cart: {
+      type: [
+        {
+          id: { type: Number, required: true },
+          productId: { type: Number, required: true },
+          name: { type: String, required: true },
+          price: { type: Number, required: true },
+          image: { type: String, required: true },
+          color: { type: String, required: true },
+          size: { type: String, required: true },
+          quantity: { type: Number, required: true },
+        },
+      ],
+      default: [],
+    },
   },
   {
     timestamps: true,
@@ -68,7 +85,13 @@ const UserSchema = new mongoose.Schema(
 UserSchema.index({ email: 1 }, { unique: true })
 UserSchema.index({ username: 1 }, { unique: true })
 
-// 이미 생성된 모델이 있으면 재사용하고, 없으면 새로 생성하여 내보냅니다.
-const User = mongoose.models.User || mongoose.model('User', UserSchema)
+// 향후 Next.js 개발 서버(HMR) 환경에서 모델(스키마)이 변경될 때
+// 과거 캐시에 머물러 새 필드(예: cart)를 무시하는 현상을 막기 위해 강제로 캐싱된 모델을 지웁니다.
+if (mongoose.models.User) {
+  delete mongoose.models.User
+}
+
+// 스키마를 바탕으로 User 모델을 (재)생성하여 내보냅니다.
+const User = mongoose.model('User', UserSchema)
 
 export default User

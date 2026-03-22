@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { notFound, useRouter } from 'next/navigation'
 import { products } from '../../../../lib/data' // 앱 데이터 저장소에서 상품 정보를 불러옵니다.
 import ProductReviewSection from '@/app/components/ProductReviewSection'
+import { syncCartToDB } from '@/app/actions/cart'
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   // URL 파라미터로 전달받은 id를 기반으로 상품 조회
@@ -75,7 +76,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   }
 
   // 장바구니 담기 실행 함수
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     // 상품 옵션 선택 검증
     if (!selectedColor || !selectedSize) {
       alert('색상과 사이즈를 모두 선택해 주세요.')
@@ -101,6 +102,13 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     cart.push(cartItem)
     localStorage.setItem('cart', JSON.stringify(cart))
     window.dispatchEvent(new Event('cartUpdated'))
+
+    // 서버 DB에도 동기화 시도 (로그인 유저인 경우에만 백엔드 액션에서 자동 처리됨)
+    try {
+      await syncCartToDB(cart)
+    } catch {
+      // 오류 발생 시 무시 (로컬엔 이미 연동됨)
+    }
 
     // 장바구니 페이지로 이동
     router.push('/cart')

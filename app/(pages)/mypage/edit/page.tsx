@@ -26,11 +26,13 @@ export default async function EditProfilePage() {
 
   if (!user) redirect('/auth?type=login')
 
+  const formattedPhone = user.phoneNumber ? user.phoneNumber.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, '$1-$2-$3') : ''
+
   const serializedUser = {
     username: user.username || '',
     name: user.name || '',
     email: user.email || '',
-    phoneNumber: user.phoneNumber || '',
+    phoneNumber: formattedPhone,
     address: user.address || '',
     user_type: user.user_type || user.accountType || 'personal',
     companyName: user.companyName || '',

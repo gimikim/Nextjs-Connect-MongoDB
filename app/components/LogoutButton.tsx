@@ -3,8 +3,10 @@
 export default function LogoutButton() {
   const handleLogout = async () => {
     await fetch('/api/logout', { method: 'POST' })
-    // 서버 컴포넌트 쿠키 상태가 갱신되도록 페이지 전체 새로고침
-    window.location.reload()
+    // 로그아웃 시 장바구니 보안을 위해 캐시를 즉시 비우고 메인 페이지로 강제 리다이렉트
+    localStorage.removeItem('cart')
+    window.dispatchEvent(new Event('cartUpdated'))
+    window.location.href = '/'
   }
 
   return (

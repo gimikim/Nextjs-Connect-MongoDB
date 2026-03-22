@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { getCartFromDB, syncCartToDB } from '@/app/actions/cart'
 
 interface CartItem {
   id: number
@@ -23,25 +24,83 @@ export default function CartPage() {
 
   useEffect(() => {
     setMounted(true)
-    const storedCart = localStorage.getItem('cart')
-    if (storedCart) {
-      try {
-        const parsed = JSON.parse(storedCart)
-        setCartItems(parsed)
-        // 기본적으로 모든 아이템을 선택 상태로 둡니다.
-        setSelectedItems(parsed.map((item: CartItem) => item.id))
-      } catch {
-        console.error('Failed to parse cart JSON')
+
+    const initCart = async () => {
+      let localCart: CartItem[] = []
+      const storedCart = localStorage.getItem('cart')
+      if (storedCart) {
+        try {
+          localCart = JSON.parse(storedCart)
+        } catch {
+          console.error('Failed to parse cart JSON')
+        }
       }
+
+      try {
+        const res = await getCartFromDB()
+
+        if (res.success && res.cart) {
+          // DB와 로컬 병합 전략: 게스트 때 담아둔 아이템(localCart)과 DB를 합칩니다.
+          const dbCart = res.cart as CartItem[]
+          const mergedMap = new Map<string, CartItem>()
+          const dbCartIds = new Set(dbCart.map((i) => i.id))
+
+          dbCart.forEach((item) => {
+            mergedMap.set(`${item.productId}-${item.color}-${item.size}`, item)
+          })
+
+          localCart.forEach((item) => {
+            // 이미 DB에 동기화가 완료된 캐시 아이템은 중복 합산 방지 (x2 버그 픽스)
+            if (dbCartIds.has(item.id)) return
+
+            const key = `${item.productId}-${item.color}-${item.size}`
+            if (mergedMap.has(key)) {
+              // 중복 옵션인 경우 수량 합산 (단, 고유 id는 기존 것 유지)
+              const existing = mergedMap.get(key)!
+              mergedMap.set(key, { ...existing, quantity: existing.quantity + item.quantity })
+            } else {
+              mergedMap.set(key, item)
+            }
+          })
+
+          const finalCart = Array.from(mergedMap.values())
+
+          setCartItems(finalCart)
+          setSelectedItems(finalCart.map((item) => item.id))
+
+          // 로컬 스토리지 덮어쓰고 다른 컴포넌트에 이벤트 전파 (헤더 카트 카운트 업데이트)
+          localStorage.setItem('cart', JSON.stringify(finalCart))
+          window.dispatchEvent(new Event('cartUpdated'))
+
+          // 최종본을 다시 서버로 완전히 덮어써서 동기화 완료
+          await syncCartToDB(finalCart)
+          return
+        }
+      } catch {
+        // 백엔드 요청 오류 시 무시
+      }
+
+      // 비로그인이거나 DB 연동 실패 시 그냥 로컬에 있는 것만 노출
+      setCartItems(localCart)
+      setSelectedItems(localCart.map((item: CartItem) => item.id))
     }
+
+    initCart()
   }, [])
 
-  const handleRemoveItem = (id: number) => {
+  const handleRemoveItem = async (id: number) => {
     const updatedCart = cartItems.filter((item) => item.id !== id)
     setCartItems(updatedCart)
     setSelectedItems(selectedItems.filter((itemId) => itemId !== id)) // 선택 목록에서도 제거
     localStorage.setItem('cart', JSON.stringify(updatedCart))
     window.dispatchEvent(new Event('cartUpdated'))
+
+    try {
+      const { syncCartToDB } = await import('@/app/actions/cart')
+      await syncCartToDB(updatedCart)
+    } catch {
+      console.error('Failed to sync deleted items')
+    }
   }
 
   const handleSelectAll = (checked: boolean) => {
@@ -60,13 +119,20 @@ export default function CartPage() {
     }
   }
 
-  const handleDeleteSelected = () => {
+  const handleDeleteSelected = async () => {
     if (selectedItems.length === 0) return
     const updatedCart = cartItems.filter((item) => !selectedItems.includes(item.id))
     setCartItems(updatedCart)
     setSelectedItems([])
     localStorage.setItem('cart', JSON.stringify(updatedCart))
     window.dispatchEvent(new Event('cartUpdated'))
+
+    try {
+      const { syncCartToDB } = await import('@/app/actions/cart')
+      await syncCartToDB(updatedCart)
+    } catch {
+      console.error('Failed to sync bulk deleted items')
+    }
   }
 
   const handleCheckout = async () => {

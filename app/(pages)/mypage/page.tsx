@@ -31,6 +31,8 @@ export default async function MyPage() {
 
   const isBusiness = user.user_type === 'business' || user.accountType === 'business'
 
+  const formattedPhone = user.phoneNumber ? user.phoneNumber.replace(/^(\d{2,3})(\d{3,4})(\d{4})$/, '$1-$2-$3') : ''
+
   return (
     <div className="flex w-full flex-col gap-8">
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
@@ -49,7 +51,7 @@ export default async function MyPage() {
           </div>
           <div className="rounded-xl bg-slate-50 p-4">
             <p className="mb-1 text-[0.85rem] font-bold text-slate-400">휴대폰 번호</p>
-            <p className="font-semibold text-slate-800">{user.phoneNumber}</p>
+            <p className="font-semibold text-slate-800">{formattedPhone}</p>
           </div>
           <div className="rounded-xl bg-slate-50 p-4">
             <p className="mb-1 text-[0.85rem] font-bold text-slate-400">생년월일 / 성별</p>
