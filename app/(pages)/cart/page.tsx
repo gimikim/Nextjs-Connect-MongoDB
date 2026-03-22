@@ -41,6 +41,7 @@ export default function CartPage() {
     setCartItems(updatedCart)
     setSelectedItems(selectedItems.filter((itemId) => itemId !== id)) // 선택 목록에서도 제거
     localStorage.setItem('cart', JSON.stringify(updatedCart))
+    window.dispatchEvent(new Event('cartUpdated'))
   }
 
   const handleSelectAll = (checked: boolean) => {
@@ -65,6 +66,7 @@ export default function CartPage() {
     setCartItems(updatedCart)
     setSelectedItems([])
     localStorage.setItem('cart', JSON.stringify(updatedCart))
+    window.dispatchEvent(new Event('cartUpdated'))
   }
 
   const handleCheckout = () => {

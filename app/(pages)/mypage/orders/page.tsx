@@ -59,20 +59,12 @@ export default async function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20 font-sans text-slate-900">
-      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white">
-        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
-          <Link href="/" className="text-2xl font-black tracking-tighter text-slate-900">
-            CONNECT
-          </Link>
-          <div className="text-[0.95rem] font-bold text-slate-600">
-            <Link href="/mypage" className="flex items-center gap-2 transition hover:text-black">
-              <span>←</span> 마이페이지로
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-4xl px-4 py-12">
+      <div className="mx-auto max-w-4xl px-4 pt-8">
+        <Link href="/mypage" className="inline-flex items-center gap-2 text-[0.95rem] font-bold text-slate-500 transition hover:text-black">
+          <span>←</span> 마이페이지로
+        </Link>
+      </div>
+      <main className="mx-auto max-w-4xl px-4 py-6">
         <h1 className="mb-8 text-3xl font-extrabold tracking-tight text-slate-900">주문/배송 조회</h1>
 
         {/* 클라이언트 사이드 컴포넌트 호출 (필터링 및 UI 렌더링) */}

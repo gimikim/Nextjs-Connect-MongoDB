@@ -32,21 +32,17 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20 font-sans text-slate-900">
-      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white">
-        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4">
-          <Link href="/" className="text-2xl font-black tracking-tighter text-slate-900">
-            CONNECT
-          </Link>
-          <Link
-            href="/mypage/orders"
-            className="flex items-center gap-2 text-[0.95rem] font-bold text-slate-600 transition hover:text-black"
-          >
-            <span>←</span> 목록으로 돌아가기
-          </Link>
-        </div>
-      </header>
+      {/* 뒤로 가기 네비게이션 */}
+      <div className="mx-auto max-w-3xl px-4 pt-8">
+        <Link
+          href="/mypage/orders"
+          className="inline-flex items-center gap-2 text-[0.95rem] font-bold text-slate-500 transition hover:text-black"
+        >
+          <span>←</span> 목록으로 돌아가기
+        </Link>
+      </div>
 
-      <main className="mx-auto max-w-3xl px-4 py-12">
+      <main className="mx-auto max-w-3xl px-4 py-6">
         <h1 className="mb-8 text-3xl font-extrabold tracking-tight text-slate-900">주문 상세 내역</h1>
 
         <div className="mb-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">

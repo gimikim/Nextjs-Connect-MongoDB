@@ -86,6 +86,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     // 장바구니에 아이템 추가 및 저장
     cart.push(cartItem)
     localStorage.setItem('cart', JSON.stringify(cart))
+    window.dispatchEvent(new Event('cartUpdated'))
 
     // 장바구니 페이지로 이동
     router.push('/cart')

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
 import LogoutButton from './components/LogoutButton'
+import CartCount from './components/CartCount'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -70,26 +71,83 @@ export default function RootLayout({
               </nav>
             </div>
 
-            <div className="flex items-center gap-5 text-[0.9rem] font-medium text-slate-600">
+            <div className="flex items-center gap-6 text-[0.9rem] font-medium text-slate-600">
               {user ? (
                 // 로그인 상태
-                <div className="flex items-center gap-5">
-                  <span className="text-slate-800">
+                <div className="flex items-center gap-5 sm:gap-6">
+                  <span className="hidden text-slate-800 sm:inline-block">
                     <strong className="mr-1 font-bold text-black">{user.username}</strong>님
                   </span>
-                  <Link href="/cart" className="transition hover:text-black">
-                    장바구니
+                  <Link
+                    href="/mypage"
+                    className="relative text-slate-600 transition hover:text-blue-600"
+                    title="마이페이지"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="h-[1.4rem] w-[1.4rem]"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                      />
+                    </svg>
                   </Link>
-                  <Link href="/mypage" className="transition hover:text-black">
-                    마이페이지
+                  <Link
+                    href="/cart"
+                    className="relative text-slate-600 transition hover:text-blue-600"
+                    title="장바구니"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="h-[1.4rem] w-[1.4rem]"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                      />
+                    </svg>
+                    <span className="absolute -right-2 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow-sm ring-1 ring-white">
+                      <CartCount />
+                    </span>
                   </Link>
                   <LogoutButton />
                 </div>
               ) : (
                 // 비로그인 상태
-                <div className="flex items-center gap-5">
-                  <Link href="/cart" className="transition hover:text-black">
-                    장바구니
+                <div className="flex items-center gap-5 sm:gap-6">
+                  <Link
+                    href="/cart"
+                    className="relative text-slate-600 transition hover:text-blue-600"
+                    title="장바구니"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="h-[1.4rem] w-[1.4rem]"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                      />
+                    </svg>
+                    <span className="absolute -right-2 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white shadow-sm ring-1 ring-white">
+                      <CartCount />
+                    </span>
                   </Link>
                   <Link href="/auth?type=login" className="transition hover:text-black">
                     로그인

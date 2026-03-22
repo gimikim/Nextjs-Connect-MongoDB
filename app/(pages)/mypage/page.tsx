@@ -35,19 +35,6 @@ export default async function MyPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20 font-sans text-slate-900">
-      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white">
-        <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
-          <Link href="/" className="text-2xl font-black tracking-tighter text-slate-900">
-            CONNECT
-          </Link>
-          <div className="text-[0.95rem] font-bold text-slate-600">
-            <Link href="/" className="flex items-center gap-2 transition hover:text-black">
-              <span>←</span> 홈으로 돌아가기
-            </Link>
-          </div>
-        </div>
-      </header>
-
       <main className="mx-auto max-w-3xl px-4 py-12">
         <h1 className="mb-8 text-3xl font-extrabold tracking-tight text-slate-900">마이페이지</h1>
 
