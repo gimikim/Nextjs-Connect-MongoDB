@@ -130,7 +130,7 @@ export default function Home() {
                 <Link href="#" className="transition hover:text-black">
                   장바구니(0)
                 </Link>
-                <Link href="#" className="transition hover:text-black">
+                <Link href="/mypage" className="transition hover:text-black">
                   마이페이지
                 </Link>
                 <LogoutButton />
