@@ -94,7 +94,21 @@ export default function SignUp() {
 
   // 입력 필드의 값이 변경될 때마다 폼 상태를 업데이트해주는 공통 함수
   function updateField<K extends keyof FormState>(key: K, value: FormState[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }))
+    let finalValue = value
+
+    // 전화번호 실시간 하이픈 형변환
+    if (key === 'phoneNumber' && typeof value === 'string') {
+      const digits = value.replace(/\D/g, '')
+      if (digits.length <= 3) {
+        finalValue = digits as FormState[K]
+      } else if (digits.length <= 7) {
+        finalValue = `${digits.slice(0, 3)}-${digits.slice(3)}` as FormState[K]
+      } else {
+        finalValue = `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}` as FormState[K]
+      }
+    }
+
+    setForm((prev) => ({ ...prev, [key]: finalValue }))
 
     if (key === 'username') {
       setUsernameChecked('')
@@ -442,6 +456,7 @@ export default function SignUp() {
           placeholder="전화번호"
           value={form.phoneNumber}
           onChange={(e) => updateField('phoneNumber', e.target.value)}
+          maxLength={13}
         />
 
         <FieldLabel>이메일 인증</FieldLabel>

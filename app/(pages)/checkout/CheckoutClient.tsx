@@ -85,9 +85,20 @@ export default function CheckoutClient({ user }: { user: UserData | null }) {
   const deliveryFee = 0 // 무료 배송
   const finalAmount = totalAmount + deliveryFee
 
+  const formatPhoneNumber = (val: string) => {
+    const digits = val.replace(/\D/g, '')
+    if (digits.length <= 3) return digits
+    if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`
+    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`
+  }
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    if (name === 'recipientPhone') {
+      setFormData((prev) => ({ ...prev, [name]: formatPhoneNumber(value) }))
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }))
+    }
   }
 
   const handlePayment = (e: React.FormEvent) => {
@@ -189,6 +200,7 @@ export default function CheckoutClient({ user }: { user: UserData | null }) {
                     name="recipientPhone"
                     value={formData.recipientPhone}
                     onChange={handleChange}
+                    maxLength={13}
                     placeholder="010-0000-0000"
                     className="w-full rounded-xl border border-slate-200 p-3 text-sm font-semibold text-black outline-none placeholder:font-medium focus:border-blue-500"
                   />
