@@ -25,9 +25,35 @@ type SerializedOrder = {
 export default function OrderListClient({ initialOrders }: { initialOrders: SerializedOrder[] }) {
   const currentYear = new Date().getFullYear()
   const [filter, setFilter] = useState<string>('6months')
+  const [orders, setOrders] = useState<SerializedOrder[]>(initialOrders)
+  const [isDeleting, setIsDeleting] = useState<string | null>(null)
+
+  const handleDelete = async (orderId: string) => {
+    if (!window.confirm('정말로 이 주문 내역을 목록에서 삭제하시겠습니까?\n이 작업은 취소할 수 없습니다.')) {
+      return
+    }
+
+    setIsDeleting(orderId)
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: 'DELETE',
+      })
+      if (res.ok) {
+        setOrders((prev) => prev.filter((o) => o._id !== orderId))
+        setTimeout(() => window.location.reload(), 100) // Next.js 클라이언트 캐시 무효화를 위한 하드 리프레시
+      } else {
+        const data = await res.json()
+        alert(data.message || '삭제에 실패했습니다.')
+      }
+    } catch {
+      alert('서버와 통신 중 오류가 발생했습니다.')
+    } finally {
+      setIsDeleting(null)
+    }
+  }
 
   // 필터링 로직
-  const filteredOrders = initialOrders.filter((order) => {
+  const filteredOrders = orders.filter((order) => {
     const orderDate = new Date(order.createdAt)
     const now = new Date()
 
@@ -107,12 +133,21 @@ export default function OrderListClient({ initialOrders }: { initialOrders: Seri
                     <span className="text-lg font-bold text-slate-900">{formatDate(order.createdAt)}</span>
                     <span className="ml-3 text-sm text-slate-400">주문번호: {order.orderNumber}</span>
                   </div>
-                  <Link
-                    href={`/mypage/orders/${order._id}`}
-                    className="text-sm font-bold text-blue-600 hover:underline"
-                  >
-                    주문 상세 보기 &rarr;
-                  </Link>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => handleDelete(order._id)}
+                      disabled={isDeleting === order._id}
+                      className="text-sm font-bold text-slate-400 transition hover:text-red-500 disabled:opacity-50"
+                    >
+                      {isDeleting === order._id ? '삭제 중...' : '내역 삭제'}
+                    </button>
+                    <Link
+                      href={`/mypage/orders/${order._id}`}
+                      className="text-sm font-bold text-blue-600 hover:underline"
+                    >
+                      주문 상세 보기 &rarr;
+                    </Link>
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-4">
