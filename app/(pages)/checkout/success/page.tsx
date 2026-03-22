@@ -49,7 +49,9 @@ export default function CheckoutSuccessPage() {
 
         if (!result.success) {
           console.error('Server action rejected:', result)
-          setErrorMessage(`에러 원인:\n${result.error}\n\n상세 속성 에러:\n${result.details}\n\n전달된 아이템 배열:\n${JSON.stringify(result.passedItems, null, 2)}`)
+          setErrorMessage(
+            `에러 원인:\n${result.error}\n\n상세 속성 에러:\n${result.details}\n\n전달된 아이템 배열:\n${JSON.stringify(result.passedItems, null, 2)}`
+          )
           setStatus('error')
           return
         }
@@ -90,14 +92,16 @@ export default function CheckoutSuccessPage() {
   if (status === 'error') {
     return (
       <div className="flex min-h-[calc(100vh-64px)] items-center justify-center bg-slate-50 pb-20 pt-8">
-        <div className="mx-auto w-full max-w-2xl rounded-3xl bg-white p-8 sm:p-10 text-center shadow-lg">
+        <div className="mx-auto w-full max-w-2xl rounded-3xl bg-white p-8 text-center shadow-lg sm:p-10">
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-100 text-4xl text-red-500">
             ❌
           </div>
           <h2 className="mb-4 text-2xl font-bold text-slate-900">결제 처리 실패 내역</h2>
-          
+
           <div className="mb-8 overflow-hidden rounded-xl bg-[#1e1e1e] text-left text-[0.8rem] leading-relaxed shadow-inner">
-            <div className="border-b border-[#333] bg-[#2d2d2d] px-4 py-2 font-bold text-slate-200">디버깅 에러 로그 (개발자용)</div>
+            <div className="border-b border-[#333] bg-[#2d2d2d] px-4 py-2 font-bold text-slate-200">
+              디버깅 에러 로그 (개발자용)
+            </div>
             <pre className="max-h-[300px] overflow-y-auto whitespace-pre-wrap p-4 font-mono text-[#a6accd]">
               {errorMessage}
             </pre>

@@ -26,7 +26,7 @@ export default function ReviewButton({
 
   if (isReviewed) {
     return (
-      <span className="inline-block rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-500 shadow-sm border border-slate-200">
+      <span className="inline-block rounded-full border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-500 shadow-sm">
         리뷰 작성 완료
       </span>
     )
@@ -55,7 +55,7 @@ export default function ReviewButton({
     }
 
     setIsSubmitting(true)
-    
+
     // Server Action에 FormData 사용
     const formData = new FormData()
     formData.append('orderId', orderId)
@@ -82,15 +82,15 @@ export default function ReviewButton({
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-extrabold text-blue-600 transition hover:bg-blue-100 active:scale-95 border border-blue-200 shadow-sm mt-1"
+        className="mt-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-extrabold text-blue-600 shadow-sm transition hover:bg-blue-100 active:scale-95"
       >
         리뷰 작성하기
       </button>
 
       {isOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm transition-opacity">
-          <div className="w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5 bg-slate-50">
+          <div className="animate-in zoom-in-95 w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl duration-200">
+            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-6 py-5">
               <h3 className="text-xl font-black text-slate-900">리뷰 작성</h3>
               <button
                 onClick={() => setIsOpen(false)}
@@ -100,8 +100,8 @@ export default function ReviewButton({
               </button>
             </div>
             <div className="px-6 py-8">
-              <p className="mb-6 text-center text-[0.95rem] font-bold text-slate-600 break-keep leading-relaxed">
-                <strong className="text-blue-600 block mb-1">{itemName}</strong>
+              <p className="mb-6 break-keep text-center text-[0.95rem] font-bold leading-relaxed text-slate-600">
+                <strong className="mb-1 block text-blue-600">{itemName}</strong>
                 상품을 받아보시니 어땠나요?
               </p>
 
@@ -124,7 +124,7 @@ export default function ReviewButton({
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="상품에 대한 상세하고 솔직한 평가를 최소 10자 이상 남겨주세요."
-                className="mb-6 w-full rounded-2xl border-2 border-slate-100 bg-slate-50 p-5 text-[0.95rem] text-slate-900 transition focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 placeholder:text-slate-400"
+                className="mb-6 w-full rounded-2xl border-2 border-slate-100 bg-slate-50 p-5 text-[0.95rem] text-slate-900 transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10"
                 rows={4}
               />
 

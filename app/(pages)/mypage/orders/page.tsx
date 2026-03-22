@@ -3,7 +3,7 @@ import Order from '@/db/models/order'
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
+
 import User from '@/db/models/user'
 import { seedMockOrders } from '@/lib/seedOrders'
 import OrderListClient from './OrderListClient'
@@ -59,21 +59,13 @@ export default async function OrdersPage() {
   }))
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20 font-sans text-slate-900">
-      <div className="mx-auto max-w-4xl px-4 pt-8">
-        <Link
-          href="/mypage"
-          className="inline-flex items-center gap-2 text-[0.95rem] font-bold text-slate-500 transition hover:text-black"
-        >
-          <span>←</span> 마이페이지로
-        </Link>
+    <div className="flex w-full flex-col">
+      <div className="mb-8 flex items-end justify-between border-b border-slate-100 pb-6">
+        <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">주문/배송 조회</h1>
       </div>
-      <main className="mx-auto max-w-4xl px-4 py-6">
-        <h1 className="mb-8 text-3xl font-extrabold tracking-tight text-slate-900">주문/배송 조회</h1>
 
-        {/* 클라이언트 사이드 컴포넌트 호출 (필터링 및 UI 렌더링) */}
-        <OrderListClient initialOrders={serializedOrders} />
-      </main>
+      {/* 클라이언트 사이드 컴포넌트 호출 (필터링 및 UI 렌더링) */}
+      <OrderListClient initialOrders={serializedOrders} />
     </div>
   )
 }

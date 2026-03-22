@@ -169,17 +169,17 @@ export default function OrderListClient({ initialOrders }: { initialOrders: Seri
                           {item.quantity}개
                         </div>
                       </div>
-                      <div className="min-w-[80px] flex-shrink-0 flex flex-col items-center justify-center gap-1.5 text-center">
+                      <div className="flex min-w-[80px] flex-shrink-0 flex-col items-center justify-center gap-1.5 text-center">
                         <span
                           className={`rounded-full px-3 py-1.5 text-xs font-semibold ${getStatusColor(order.status)}`}
                         >
                           {order.status}
                         </span>
                         {(order.status === '결제완료' || order.status === '배송완료') && (
-                          <ReviewButton 
-                            orderId={order._id} 
-                            productId={item.productId} 
-                            itemName={item.name} 
+                          <ReviewButton
+                            orderId={order._id}
+                            productId={item.productId}
+                            itemName={item.name}
                             isReviewed={item.isReviewed || false}
                           />
                         )}

@@ -27,10 +27,10 @@ export async function processOrder(orderData: any) {
   console.log('--- RECOMPILE ACTION ---', new Date().toISOString())
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formattedItems = (orderData.items || []).map((item: any) => {
-    const defaultPrice = Number(item.price) || 0;
-    const finalPrice = item.finalPrice ? Number(item.finalPrice) : defaultPrice;
-    const discount = item.discount ? Number(item.discount) : 0;
-    
+    const defaultPrice = Number(item.price) || 0
+    const finalPrice = item.finalPrice ? Number(item.finalPrice) : defaultPrice
+    const discount = item.discount ? Number(item.discount) : 0
+
     return {
       productId: Number(item.productId) || Date.now(),
       name: String(item.name || 'CONNECT 상품'),
@@ -61,10 +61,11 @@ export async function processOrder(orderData: any) {
     // 반환 가능한 문자열/원시 타입으로 변환
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return { success: true, orderId: String((newOrder as any)._id) }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     // 중복 저장 방지 (리액트 StrictMode 이중 렌더링 또는 페이지 새로고침 대응)
     if (error.code === 11000 && error.keyPattern && error.keyPattern.orderNumber) {
-      console.log('[Server Action] Order already exists, returning gracefully.');
+      console.log('[Server Action] Order already exists, returning gracefully.')
       const existingOrder = await Order.findOne({ orderNumber: orderData.orderId })
       if (existingOrder) {
         return { success: true, orderId: String(existingOrder._id) }
@@ -72,11 +73,11 @@ export async function processOrder(orderData: any) {
     }
 
     console.error('[Mongoose ERROR]', error)
-    return { 
-      success: false, 
-      error: error.message || String(error), 
+    return {
+      success: false,
+      error: error.message || String(error),
       details: error.errors ? JSON.stringify(error.errors, null, 2) : 'No detailed validation errors available.',
-      passedItems: formattedItems
+      passedItems: formattedItems,
     }
   }
 }

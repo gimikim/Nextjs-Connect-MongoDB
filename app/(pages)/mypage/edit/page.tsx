@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
+
 import dbConnect from '@/db/dbConnect'
 import User from '@/db/models/user'
 import EditProfileClient from './EditProfileClient'
@@ -38,16 +38,11 @@ export default async function EditProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20 font-sans text-slate-900">
-      <div className="mx-auto max-w-2xl px-4 pt-8">
-        <Link href="/mypage" className="inline-flex items-center gap-2 text-[0.95rem] font-bold text-slate-500 transition hover:text-black">
-          <span>←</span> 마이페이지로 이동
-        </Link>
+    <div className="flex w-full flex-col">
+      <div className="mb-8 flex items-end justify-between border-b border-slate-100 pb-6">
+        <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">기본 정보 수정</h1>
       </div>
-      <main className="mx-auto max-w-2xl px-4 py-6">
-        <h1 className="mb-8 text-3xl font-extrabold tracking-tight text-slate-900">회원 정보 수정</h1>
-        <EditProfileClient user={serializedUser} />
-      </main>
+      <EditProfileClient user={serializedUser} />
     </div>
   )
 }
