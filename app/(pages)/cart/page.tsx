@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 interface CartItem {
   id: number
@@ -18,6 +19,7 @@ export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [selectedItems, setSelectedItems] = useState<number[]>([]) // 체크된 아이템들의 ID 저장
   const [mounted, setMounted] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
@@ -65,6 +67,13 @@ export default function CartPage() {
     localStorage.setItem('cart', JSON.stringify(updatedCart))
   }
 
+  const handleCheckout = () => {
+    const selectedCartItems = cartItems.filter((item) => selectedItems.includes(item.id))
+    if (selectedCartItems.length === 0) return
+    localStorage.setItem('checkoutItems', JSON.stringify(selectedCartItems))
+    router.push('/checkout')
+  }
+
   // Hydration 처리를 위한 로딩 (localStorage는 클라이언트에서만 접근 가능)
   if (!mounted) return <div className="min-h-screen bg-slate-50" />
 
@@ -88,7 +97,7 @@ export default function CartPage() {
                 <p className="mb-8 text-slate-500">원하는 상품을 장바구니에 담아보세요!</p>
                 <Link
                   href="/"
-                  className="rounded-xl bg-blue-600 px-8 py-3.5 font-bold text-white transition-colors hover:bg-blue-700 inline-block"
+                  className="inline-block rounded-xl bg-blue-600 px-8 py-3.5 font-bold text-white transition-colors hover:bg-blue-700"
                 >
                   쇼핑 계속하기
                 </Link>
@@ -118,7 +127,10 @@ export default function CartPage() {
                 </div>
 
                 {cartItems.map((item) => (
-                  <div key={item.id} className="flex flex-col gap-4 border-b border-slate-100 pb-6 last:border-0 last:pb-0 sm:flex-row sm:items-center">
+                  <div
+                    key={item.id}
+                    className="flex flex-col gap-4 border-b border-slate-100 pb-6 last:border-0 last:pb-0 sm:flex-row sm:items-center"
+                  >
                     {/* 개별 체크박스 */}
                     <div className="flex shrink-0 items-center justify-start sm:w-8 sm:justify-center">
                       <input
@@ -137,15 +149,16 @@ export default function CartPage() {
 
                     {/* 상품 정보 */}
                     <div className="flex flex-1 flex-col">
-                      <Link href={`/products/${item.productId}`} className="mb-1 text-lg font-bold text-slate-900 hover:text-blue-600 transition-colors">
+                      <Link
+                        href={`/products/${item.productId}`}
+                        className="mb-1 text-lg font-bold text-slate-900 transition-colors hover:text-blue-600"
+                      >
                         {item.name}
                       </Link>
                       <div className="mb-3 text-sm text-slate-500">
                         색상: {item.color} / 사이즈: {item.size} / 수량: {item.quantity}개
                       </div>
-                      <div className="font-bold text-slate-900">
-                        {(item.price * item.quantity).toLocaleString()}원
-                      </div>
+                      <div className="font-bold text-slate-900">{(item.price * item.quantity).toLocaleString()}원</div>
                     </div>
 
                     {/* 삭제 버튼 */}
@@ -167,7 +180,7 @@ export default function CartPage() {
           <div className="w-full shrink-0 lg:sticky lg:top-24 lg:w-[340px]">
             <div className="rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:p-8">
               <h2 className="mb-6 text-xl font-bold text-slate-900">결제 정보</h2>
-              
+
               <div className="mb-6 space-y-4 text-slate-600">
                 <div className="flex justify-between">
                   <span>총 상품 금액</span>
@@ -175,7 +188,9 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between">
                   <span>배송비</span>
-                  <span className="font-medium text-slate-900">{deliveryFee === 0 ? '무료' : `${(deliveryFee as number).toLocaleString()}원`}</span>
+                  <span className="font-medium text-slate-900">
+                    {deliveryFee === 0 ? '무료' : `${(deliveryFee as number).toLocaleString()}원`}
+                  </span>
                 </div>
               </div>
 
@@ -187,6 +202,7 @@ export default function CartPage() {
               </div>
 
               <button
+                onClick={handleCheckout}
                 disabled={selectedItems.length === 0}
                 className="w-full rounded-2xl bg-blue-600 py-4 text-lg font-bold text-white shadow-[0_4px_14px_0_rgb(37,99,235,0.39)] transition-all hover:bg-blue-700 hover:shadow-[0_6px_20px_rgb(37,99,235,0.23)] disabled:border disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
               >

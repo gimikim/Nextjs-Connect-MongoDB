@@ -1,27 +1,27 @@
 import mongoose, { Schema, Document } from 'mongoose'
 
 export interface IOrderItem {
-  productId: number;
-  name: string;
-  brand: string;
-  price: number;
-  discount: number;
-  finalPrice: number;
-  quantity: number;
-  image: string;
+  productId: number
+  name: string
+  brand: string
+  price: number
+  discount: number
+  finalPrice: number
+  quantity: number
+  image: string
 }
 
 export interface IOrder extends Document {
-  userId: mongoose.Types.ObjectId | string;
-  orderNumber: string; // e.g. "ORD-2026-12345"
-  items: IOrderItem[];
-  totalAmount: number;
-  status: '결제완료' | '상품준비중' | '배송중' | '배송완료' | '주문취소';
-  shippingAddress: string;
-  recipientName: string;
-  recipientPhone: string;
-  createdAt: Date;
-  updatedAt: Date;
+  userId: mongoose.Types.ObjectId | string
+  orderNumber: string // e.g. "ORD-2026-12345"
+  items: IOrderItem[]
+  totalAmount: number
+  status: '결제완료' | '상품준비중' | '배송중' | '배송완료' | '주문취소'
+  shippingAddress: string
+  recipientName: string
+  recipientPhone: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 const OrderItemSchema = new Schema({
@@ -33,7 +33,7 @@ const OrderItemSchema = new Schema({
   finalPrice: { type: Number, required: true },
   quantity: { type: Number, required: true },
   image: { type: String, required: true },
-});
+})
 
 const OrderSchema = new Schema(
   {

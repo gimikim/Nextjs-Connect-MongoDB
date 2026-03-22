@@ -1,80 +1,10 @@
 import Link from 'next/link'
-import { cookies } from 'next/headers'
-import jwt from 'jsonwebtoken'
-import LogoutButton from './components/LogoutButton'
 import ProductGrid from './components/ProductGrid'
 import { products } from '../lib/data' // 별도의 모듈에 분리된 상품 데이터를 불러와서 재사용합니다.
 
 export default function Home() {
-  // 쿠키에서 jwt 토큰을 가져와 로그인(세션) 여부를 아주 빠르게 파악합니다. (서버 사이드 렌더링)
-  const cookieStore = cookies()
-  const token = cookieStore.get('auth_token')?.value
-  let user: { username: string; role: string } | null = null
-
-  if (token) {
-    try {
-      const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-string-only-for-development'
-      user = jwt.verify(token, jwtSecret) as { username: string; role: string }
-    } catch {
-      // 잘못되거나 만료된 토큰의 경우 무시합니다.
-    }
-  }
-
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900">
-      {/* 1. 글로벌 네비게이션 헤더 (GNB) */}
-      <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-          <div className="flex items-center gap-10">
-            <Link href="/" className="text-2xl font-black tracking-tighter text-slate-900">
-              CONNECT
-            </Link>
-            <nav className="hidden gap-6 text-[0.95rem] font-semibold text-slate-600 md:flex">
-              <Link href="#" className="transition hover:text-black">
-                베스트
-              </Link>
-              <Link href="#" className="transition hover:text-black">
-                신상품
-              </Link>
-              <Link href="#" className="flex items-center gap-1 text-blue-600 transition hover:text-blue-800">
-                기획전 ⚡
-              </Link>
-              <Link href="#" className="transition hover:text-black">
-                브랜드
-              </Link>
-            </nav>
-          </div>
-
-          <div className="flex items-center gap-5 text-[0.9rem] font-medium text-slate-600">
-            {user ? (
-              // 로그인 상태일 때
-              <div className="flex items-center gap-5">
-                <span className="text-slate-800">
-                  <strong className="mr-1 font-bold text-black">{user.username}</strong>님
-                </span>
-                <Link href="#" className="transition hover:text-black">
-                  장바구니(0)
-                </Link>
-                <Link href="/mypage" className="transition hover:text-black">
-                  마이페이지
-                </Link>
-                <LogoutButton />
-              </div>
-            ) : (
-              // 비로그인 상태일 때
-              <div className="flex items-center gap-5">
-                <Link href="/auth?type=login" className="transition hover:text-black">
-                  로그인
-                </Link>
-                <Link href="/auth?type=sign-up" className="transition hover:text-black">
-                  회원가입
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
       {/* 2. 메인 배너 영역 (Hero) */}
       <section className="relative overflow-hidden bg-slate-50 py-24 sm:py-32">
         {/* 장식용 원형 배경 */}

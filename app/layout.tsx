@@ -2,6 +2,9 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
+import jwt from 'jsonwebtoken'
+import LogoutButton from './components/LogoutButton'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -24,26 +27,79 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // 쿠키에서 jwt 토큰 획득 (서버 사이드 렌더링)
+  const cookieStore = cookies()
+  const token = cookieStore.get('auth_token')?.value
+  let user: { username: string; role: string } | null = null
+
+  if (token) {
+    try {
+      const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-string-only-for-development'
+      user = jwt.verify(token, jwtSecret) as { username: string; role: string }
+    } catch {
+      // 무시
+    }
+  }
+
   return (
     <html lang="ko">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {/* 글로벌 로고/내비게이션 바 (모든 페이지 상단 고정) */}
-        <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
-          <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
-            <Link
-              href="/"
-              className="text-2xl font-black tracking-tighter text-blue-600 transition-colors hover:text-blue-700"
-            >
-              SHOP
-            </Link>
-            <nav className="flex items-center gap-6 text-sm font-bold text-slate-700">
-              <Link href="/cart" className="transition-colors hover:text-blue-600">
-                장바구니
+        {/* 통합 글로벌 내비게이션 바 */}
+        <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md">
+          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-10">
+              <Link
+                href="/"
+                className="text-2xl font-black tracking-tighter text-blue-600 transition-colors hover:text-blue-700"
+              >
+                CONNECT
               </Link>
-              <Link href="/mypage/orders" className="transition-colors hover:text-blue-600">
-                마이페이지
-              </Link>
-            </nav>
+              <nav className="hidden gap-6 text-[0.95rem] font-semibold text-slate-600 md:flex">
+                <Link href="#" className="transition hover:text-black">
+                  베스트
+                </Link>
+                <Link href="#" className="transition hover:text-black">
+                  신상품
+                </Link>
+                <Link href="#" className="flex items-center gap-1 text-blue-600 transition hover:text-blue-800">
+                  기획전 ⚡
+                </Link>
+                <Link href="#" className="transition hover:text-black">
+                  브랜드
+                </Link>
+              </nav>
+            </div>
+
+            <div className="flex items-center gap-5 text-[0.9rem] font-medium text-slate-600">
+              {user ? (
+                // 로그인 상태
+                <div className="flex items-center gap-5">
+                  <span className="text-slate-800">
+                    <strong className="mr-1 font-bold text-black">{user.username}</strong>님
+                  </span>
+                  <Link href="/cart" className="transition hover:text-black">
+                    장바구니
+                  </Link>
+                  <Link href="/mypage" className="transition hover:text-black">
+                    마이페이지
+                  </Link>
+                  <LogoutButton />
+                </div>
+              ) : (
+                // 비로그인 상태
+                <div className="flex items-center gap-5">
+                  <Link href="/cart" className="transition hover:text-black">
+                    장바구니
+                  </Link>
+                  <Link href="/auth?type=login" className="transition hover:text-black">
+                    로그인
+                  </Link>
+                  <Link href="/auth?type=sign-up" className="transition hover:text-black">
+                    회원가입
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 

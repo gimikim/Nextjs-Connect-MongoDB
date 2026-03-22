@@ -37,6 +37,29 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   // 선택된 수량에 맞춰 총 결제 금액 계산
   const totalPrice = finalPrice * quantity
 
+  // 바로 구매하기 실행 함수
+  const handleBuyNow = () => {
+    if (!selectedColor || !selectedSize) {
+      alert('색상과 사이즈를 모두 선택해 주세요.')
+      return
+    }
+
+    const buyItem = {
+      id: Date.now(), // 고유 장바구니 아이템 ID
+      productId: product.id,
+      name: product.name,
+      price: finalPrice,
+      image: selectedImage,
+      color: selectedColor,
+      size: selectedSize,
+      quantity: quantity,
+    }
+
+    // 바로 구매 항목을 별도 스토리지에 저장
+    localStorage.setItem('checkoutItems', JSON.stringify([buyItem]))
+    router.push('/checkout')
+  }
+
   // 장바구니 담기 실행 함수
   const handleAddToCart = () => {
     // 상품 옵션 선택 검증
@@ -59,7 +82,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
     // 로컬 스토리지에서 기존 장바구니 불러오기
     const storedCart = localStorage.getItem('cart')
     const cart = storedCart ? JSON.parse(storedCart) : []
-    
+
     // 장바구니에 아이템 추가 및 저장
     cart.push(cartItem)
     localStorage.setItem('cart', JSON.stringify(cart))
@@ -260,7 +283,10 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               >
                 장바구니 담기
               </button>
-              <button className="flex-1 rounded-2xl bg-blue-600 py-4 text-lg font-bold text-white shadow-[0_4px_14px_0_rgb(37,99,235,0.39)] transition-all hover:bg-blue-700 hover:shadow-[0_6px_20px_rgb(37,99,235,0.23)] active:scale-[0.98]">
+              <button
+                onClick={handleBuyNow}
+                className="flex-1 rounded-2xl bg-blue-600 py-4 text-lg font-bold text-white shadow-[0_4px_14px_0_rgb(37,99,235,0.39)] transition-all hover:bg-blue-700 hover:shadow-[0_6px_20px_rgb(37,99,235,0.23)] active:scale-[0.98]"
+              >
                 바로 구매하기 ({quantity}개)
               </button>
             </div>
