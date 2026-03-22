@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import dbConnect from '@/db/dbConnect'
 import Order from '@/db/models/order'
+import ReviewButton from '@/app/components/ReviewButton'
 
 export default async function OrderDetailPage({ params }: { params: { id: string } }) {
   const cookieStore = cookies()
@@ -73,10 +74,18 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                       <strong className="text-slate-800">{item.finalPrice.toLocaleString()}</strong>원
                     </p>
                   </div>
-                  <div className="text-right">
+                  <div className="flex flex-col items-end justify-center min-w-[80px] text-right gap-1.5">
                     <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600">
                       {order.status}
                     </span>
+                    {(order.status === '결제완료' || order.status === '배송완료') && (
+                      <ReviewButton 
+                        orderId={order._id.toString()} 
+                        productId={item.productId} 
+                        itemName={item.name} 
+                        isReviewed={!!item.isReviewed}
+                      />
+                    )}
                   </div>
                 </div>
               ))}

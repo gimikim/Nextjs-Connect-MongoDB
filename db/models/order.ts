@@ -11,6 +11,7 @@ export interface IOrderItem {
   image: string
   color?: string
   size?: string
+  isReviewed?: boolean
 }
 
 export interface IOrder extends Document {
@@ -37,6 +38,7 @@ const OrderItemSchema = new Schema({
   image: { type: String, required: true },
   color: { type: String, required: false },
   size: { type: String, required: false },
+  isReviewed: { type: Boolean, default: false },
 })
 
 const OrderSchema = new Schema(

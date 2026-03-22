@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { notFound, useRouter } from 'next/navigation'
 import { products } from '../../../../lib/data' // 앱 데이터 저장소에서 상품 정보를 불러옵니다.
+import ProductReviewSection from '@/app/components/ProductReviewSection'
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   // URL 파라미터로 전달받은 id를 기반으로 상품 조회
@@ -293,6 +294,9 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
             </div>
           </div>
         </div>
+
+        {/* 리뷰 영역 노출 (Client Component) */}
+        <ProductReviewSection productId={product.id} />
       </div>
     </div>
   )

@@ -54,13 +54,17 @@ export default async function OrdersPage() {
       finalPrice: i.finalPrice,
       quantity: i.quantity,
       image: i.image,
+      isReviewed: !!i.isReviewed,
     })),
   }))
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20 font-sans text-slate-900">
       <div className="mx-auto max-w-4xl px-4 pt-8">
-        <Link href="/mypage" className="inline-flex items-center gap-2 text-[0.95rem] font-bold text-slate-500 transition hover:text-black">
+        <Link
+          href="/mypage"
+          className="inline-flex items-center gap-2 text-[0.95rem] font-bold text-slate-500 transition hover:text-black"
+        >
           <span>←</span> 마이페이지로
         </Link>
       </div>
