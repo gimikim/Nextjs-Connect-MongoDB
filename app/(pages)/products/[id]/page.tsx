@@ -39,9 +39,22 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const totalPrice = finalPrice * quantity
 
   // 바로 구매하기 실행 함수
-  const handleBuyNow = () => {
+  const handleBuyNow = async () => {
     if (!selectedColor || !selectedSize) {
       alert('색상과 사이즈를 모두 선택해 주세요.')
+      return
+    }
+
+    // 로그인 여부 체크
+    try {
+      const authCheck = await fetch('/api/me')
+      if (!authCheck.ok) {
+        alert('상품을 구매하시려면 먼저 로그인이 필요합니다.')
+        router.push('/auth?type=login')
+        return
+      }
+    } catch {
+      alert('접속 상태를 확인할 수 없습니다.')
       return
     }
 

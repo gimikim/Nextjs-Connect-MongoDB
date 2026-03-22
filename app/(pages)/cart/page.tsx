@@ -69,9 +69,23 @@ export default function CartPage() {
     window.dispatchEvent(new Event('cartUpdated'))
   }
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     const selectedCartItems = cartItems.filter((item) => selectedItems.includes(item.id))
     if (selectedCartItems.length === 0) return
+
+    // 로그인 여부 체크
+    try {
+      const authCheck = await fetch('/api/me')
+      if (!authCheck.ok) {
+        alert('결제를 진행하시려면 먼저 로그인이 필요합니다.')
+        router.push('/auth?type=login')
+        return
+      }
+    } catch {
+      alert('접속 상태를 확인할 수 없습니다.')
+      return
+    }
+
     localStorage.setItem('checkoutItems', JSON.stringify(selectedCartItems))
     router.push('/checkout')
   }
