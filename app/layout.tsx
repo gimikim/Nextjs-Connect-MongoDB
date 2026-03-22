@@ -6,6 +6,7 @@ import { cookies } from 'next/headers'
 import jwt from 'jsonwebtoken'
 import LogoutButton from './components/LogoutButton'
 import CartCount from './components/CartCount'
+import Footer from './components/Footer'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -44,7 +45,7 @@ export default function RootLayout({
 
   return (
     <html lang="ko">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col antialiased`}>
         {/* 통합 글로벌 내비게이션 바 */}
         <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md">
           <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -162,7 +163,10 @@ export default function RootLayout({
         </header>
 
         {/* 본문 콘텐츠 영역 */}
-        <main>{children}</main>
+        <main className="flex-1">{children}</main>
+
+        {/* 전역 공통 하단 푸터 영역 */}
+        <Footer />
       </body>
     </html>
   )
