@@ -10,21 +10,38 @@ export async function GET(req: NextRequest) {
   await dbConnect()
   const { searchParams } = new URL(req.url)
   const searchQuery = searchParams.get('search') || '' // URL의 쿼리 스트링에서 'search' 값을 가져옵니다.
+  const categoryQuery = searchParams.get('category') || '' // 새롭게 추가된 category 파라미터입니다.
 
   try {
-    // 기본적으로 판매 중인 상품만 필터링합니다.
-    let query: mongoose.FilterQuery<IProduct> = { isAvailable: true }
+    // 디버깅: 전체 상품 개수 확인
+    const totalCount = await Product.countDocuments({})
+    console.log('Total products in database:', totalCount)
 
-    // 검색어가 있다면 상품명(name) 또는 브랜드(brand)에서 부분 일치 검색 (대소문자 무시) 처리합니다.
+    // 기본적으로 판매 중인 상품만 필터링합니다. (isAvailable이 false인 것만 제외)
+    let query: mongoose.FilterQuery<IProduct> = { isAvailable: { $ne: false } }
+
+    // 검색어가 있다면 상품명(name), 브랜드(brand), 카테고리(category), 설명(description)에서 부분 일치 검색 처리합니다.
     if (searchQuery) {
       query = {
         ...query,
-        $or: [{ name: { $regex: searchQuery, $options: 'i' } }, { brand: { $regex: searchQuery, $options: 'i' } }],
+        $or: [
+          { name: { $regex: searchQuery, $options: 'i' } },
+          { brand: { $regex: searchQuery, $options: 'i' } },
+          { category: { $regex: searchQuery, $options: 'i' } },
+          { description: { $regex: searchQuery, $options: 'i' } },
+        ],
       }
     }
 
+    // 카테고리 필터링이 있다면 쿼리에 추가합니다. ('전체'가 아닐 때만)
+    if (categoryQuery && categoryQuery !== '전체') {
+      query.category = categoryQuery
+    }
+
     // 생성일 기준 내림차순(-1)으로 정렬하여 최신 상품부터 반환합니다.
+    console.log('Final Fetch query:', JSON.stringify(query))
     const products = await Product.find(query).sort({ createdAt: -1 })
+    console.log('Fetched filtered products count:', products.length)
 
     return NextResponse.json({ products })
   } catch (error) {

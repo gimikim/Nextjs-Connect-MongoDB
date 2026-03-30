@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useSearchParams, useRouter } from 'next/navigation'
 
 // 화면에 보여줄 때 필요한 API의 상품 데이터 타입 형태입니다.
 export interface DBProduct {
@@ -15,21 +16,32 @@ export interface DBProduct {
 }
 
 export default function ProductGrid() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // URL 파라미터에서 현재 상태를 읽어옵니다.
+  const categoryParam = searchParams.get('category') || '전체'
+  const searchParam = searchParams.get('search') || ''
+
   const [products, setProducts] = useState<DBProduct[]>([])
   const [loading, setLoading] = useState(true)
-  const [selectedCategory, setSelectedCategory] = useState<string>('전체')
 
-  // 사용자가 검색할 상품명 입력을 담는 상태입니다.
-  const [searchTerm, setSearchTerm] = useState('')
+  // 입력창의 값은 로컬 상태로 관리하여 타이핑 시 즉각 반영되게 합니다.
+  const [searchTerm, setSearchTerm] = useState(searchParam)
 
   const categories = ['전체', '의류', '신발', '가전', '리빙']
 
-  // 등록된 실제 상품 목록을 서버(MongoDB)에서 불러옵니다. 검색어가 있으면 동적으로 적용됩니다.
-  const fetchProducts = async (search = '') => {
+  // 등록된 실제 상품 목록을 서버(MongoDB)에서 불러옵니다.
+  const fetchProducts = async (search = '', category = '전체') => {
     setLoading(true)
     try {
-      // 검색어가 존재하면 쿼리 스트링으로 필터링 요청을 보냅니다.
-      const url = search ? `/api/products?search=${encodeURIComponent(search)}` : '/api/products'
+      const params = new URLSearchParams()
+      if (search) params.append('search', search)
+      if (category && category !== '전체') params.append('category', category)
+
+      const queryString = params.toString()
+      const url = queryString ? `/api/products?${queryString}` : '/api/products'
+
       const res = await fetch(url)
       if (res.ok) {
         const data = await res.json()
@@ -42,20 +54,40 @@ export default function ProductGrid() {
     }
   }
 
-  // 페이지가 나타날 때 최초 1회 전체 상품을 불러옵니다.
+  // URL 파라미터(search, category)가 변경될 때마다 데이터를 다시 불러오고 상태를 동기화합니다.
   useEffect(() => {
-    fetchProducts()
-  }, [])
+    setSearchTerm(searchParam)
+    fetchProducts(searchParam, categoryParam)
+  }, [searchParam, categoryParam])
 
-  // 검색 폼을 제출(엔터 키 또는 버튼 클릭)했을 때의 동작입니다.
+  // 검색 폼을 제출했을 때 URL을 업데이트합니다.
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    fetchProducts(searchTerm) // 현재 입력된 단어로 검색을 수행합니다.
+    const params = new URLSearchParams(searchParams.toString())
+    if (searchTerm) {
+      params.set('search', searchTerm)
+    } else {
+      params.delete('search')
+    }
+    router.push(`/?${params.toString()}`)
   }
 
-  // API에서 가져온 상품들 중, 선택한 카테고리에 맞는 상품만 화면에 필터링합니다.
-  const filteredProducts =
-    selectedCategory === '전체' ? products : products.filter((p) => p.category === selectedCategory)
+  // 카테고리를 변경했을 때 URL을 업데이트합니다.
+  const handleCategoryChange = (cat: string) => {
+    // 카테고리 클릭 시 검색어는 초기화 시켜 독립적으로 동작하게 합니다.
+    const params = new URLSearchParams()
+
+    if (cat && cat !== '전체') {
+      params.set('category', cat)
+    }
+
+    // 로컬 검색어 입력창도 비워줍니다.
+    setSearchTerm('')
+    router.push(`/?${params.toString()}`)
+  }
+
+  // 이제 서버에서 필터링된 상품들을 그대로 사용합니다.
+  const filteredProducts = products
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-20">
@@ -88,9 +120,9 @@ export default function ProductGrid() {
         {categories.map((cat) => (
           <button
             key={cat}
-            onClick={() => setSelectedCategory(cat)}
+            onClick={() => handleCategoryChange(cat)}
             className={`rounded-full px-5 py-2 text-[0.95rem] font-bold transition-all duration-200 ${
-              selectedCategory === cat
+              categoryParam === cat
                 ? '-translate-y-0.5 transform bg-blue-600 text-white shadow-md'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
