@@ -1,30 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server'
+import jwt from 'jsonwebtoken'
 import dbConnect from '@/db/dbConnect'
 import Product from '@/db/models/product'
-import jwt from 'jsonwebtoken'
+import Review from '@/db/models/review'
+import mongoose from 'mongoose'
 
 export async function GET(req: NextRequest) {
-  // 판매자(사업자) 본인이 직접 올린 상품 목록만을 최신순으로 가져오는 API입니다.
   try {
     const token = req.cookies.get('auth_token')?.value
-    if (!token) return NextResponse.json({ message: '로그인이 필요합니다.' }, { status: 401 })
+    if (!token) {
+      return NextResponse.json({ message: '인증이 필요합니다.' }, { status: 401 })
+    }
 
     const jwtSecret = process.env.JWT_SECRET || 'fallback-secret-string-only-for-development'
     const decoded = jwt.verify(token, jwtSecret) as { userId: string; role: string }
 
-    // 비즈니스(사업자) 계정이 아닌 유저 접근 차단
+    // 비즈니스 회원 권한 체크
     if (decoded.role !== 'business') {
-      return NextResponse.json({ message: '판매자 권한이 없습니다.' }, { status: 403 })
+      return NextResponse.json({ message: '접근 권한이 없습니다.' }, { status: 403 })
     }
 
     await dbConnect()
 
-    // sellerId가 현재 로그인한 유저의 ID인 상품만 검색 후, 최신에 만든 것부터 반환하도록 내림차순 정렬 처리합니다.
-    const products = await Product.find({ sellerId: decoded.userId }).sort({ createdAt: -1 })
+    // 판매자의 모든 상품 조회
+    const products = await Product.find({ sellerId: decoded.userId }).sort({ createdAt: -1 }).lean()
 
-    return NextResponse.json({ products })
+    // 각 상품별로 리뷰 통계 및 목록 집계
+    const productsWithReviews = await Promise.all(
+      products.map(async (product: any) => {
+        const productIdStr = product._id.toString()
+        const reviews = await Review.find({ productId: productIdStr }).sort({ createdAt: -1 }).lean()
+
+        let averageRating = 0
+        if (reviews.length > 0) {
+          const sum = reviews.reduce((acc, curr) => acc + curr.rating, 0)
+          averageRating = sum / reviews.length
+        }
+
+        return {
+          ...product,
+          _id: productIdStr, // UI에서 사용하기 쉽도록 변경
+          reviews,
+          averageRating: Number(averageRating.toFixed(1)),
+          reviewCount: reviews.length,
+        }
+      })
+    )
+
+    return NextResponse.json({ products: productsWithReviews })
   } catch (error) {
     console.error('Failed to fetch seller products:', error)
-    return NextResponse.json({ message: '상품 목록을 가져오는데 실패했습니다.' }, { status: 500 })
+    return NextResponse.json({ message: '상품 목록을 불러오는데 실패했습니다.' }, { status: 500 })
   }
 }

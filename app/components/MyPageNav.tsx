@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-export default function MyPageNav() {
+export default function MyPageNav({ isBusiness }: { isBusiness?: boolean }) {
   const pathname = usePathname()
 
   const navItems = [
@@ -13,6 +13,12 @@ export default function MyPageNav() {
     { name: '나의 리뷰 관리', href: '/mypage/reviews', icon: '⭐' },
     { name: '기본 정보 수정', href: '/mypage/edit', icon: '⚙️' },
   ]
+
+  if (isBusiness) {
+    // 사업자 계정일 때만 보이는 마이페이지 탭 추가
+    navItems.push({ name: '상품 등록 (판매자)', href: '/mypage/seller/add', icon: '📝' })
+    navItems.push({ name: '상품 목록 (판매자)', href: '/mypage/seller/products', icon: '📋' })
+  }
 
   return (
     <nav className="flex flex-col p-4">
