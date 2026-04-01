@@ -116,6 +116,15 @@ export default function SellerProductsPage() {
                         )}
                       </div>
                     </div>
+
+                    <div className="flex shrink-0">
+                      <Link
+                        href={`/mypage/seller/edit/${p._id}`}
+                        className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600"
+                      >
+                        수정하기
+                      </Link>
+                    </div>
                   </div>
 
                   {/* 리뷰 & 별점 현황 */}
