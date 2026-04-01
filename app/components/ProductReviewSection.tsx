@@ -14,7 +14,7 @@ interface ReviewType {
   isMine?: boolean
 }
 
-export default function ProductReviewSection({ productId }: { productId: number }) {
+export default function ProductReviewSection({ productId }: { productId: string }) {
   const [reviews, setReviews] = useState<ReviewType[]>([])
   const [stats, setStats] = useState({ total: 0, avg: 0 })
   const [loading, setLoading] = useState(true)

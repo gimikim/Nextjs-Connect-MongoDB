@@ -28,6 +28,13 @@ interface UserData {
   address: string
 }
 
+const formatPhoneNumber = (val: string) => {
+  const digits = val.replace(/\D/g, '')
+  if (digits.length <= 3) return digits
+  if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`
+}
+
 export default function CheckoutClient({ user }: { user: UserData | null }) {
   const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>([])
   const [mounted, setMounted] = useState(false)
@@ -35,7 +42,7 @@ export default function CheckoutClient({ user }: { user: UserData | null }) {
 
   const [formData, setFormData] = useState({
     recipientName: user?.name || '',
-    recipientPhone: user?.phoneNumber || '',
+    recipientPhone: user?.phoneNumber ? formatPhoneNumber(user.phoneNumber) : '',
     shippingAddress: user?.address || '',
     request: '',
   })
@@ -66,7 +73,7 @@ export default function CheckoutClient({ user }: { user: UserData | null }) {
       setFormData((prev) => ({
         ...prev,
         recipientName: user.name || '',
-        recipientPhone: user.phoneNumber || '',
+        recipientPhone: user.phoneNumber ? formatPhoneNumber(user.phoneNumber) : '',
         shippingAddress: user.address || '',
       }))
     } else if (addressType === 'new') {
@@ -84,13 +91,6 @@ export default function CheckoutClient({ user }: { user: UserData | null }) {
   const totalAmount = checkoutItems.reduce((acc, item) => acc + item.price * item.quantity, 0)
   const deliveryFee = 0 // 무료 배송
   const finalAmount = totalAmount + deliveryFee
-
-  const formatPhoneNumber = (val: string) => {
-    const digits = val.replace(/\D/g, '')
-    if (digits.length <= 3) return digits
-    if (digits.length <= 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`
-    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7, 11)}`
-  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target

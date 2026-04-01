@@ -120,7 +120,7 @@ export default function SellerProductsPage() {
 
                   {/* 리뷰 & 별점 현황 */}
                   <div className="mt-auto pt-4">
-                    <div className="mb-3 flex items-center gap-2 rounded-xl bg-orange-50/50 p-4 border border-orange-100/50">
+                    <div className="mb-3 flex items-center gap-2 rounded-xl border border-orange-100/50 bg-orange-50/50 p-4">
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-xl shadow-sm">
                         ⭐
                       </div>

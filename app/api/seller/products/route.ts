@@ -3,8 +3,6 @@ import jwt from 'jsonwebtoken'
 import dbConnect from '@/db/dbConnect'
 import Product from '@/db/models/product'
 import Review from '@/db/models/review'
-import mongoose from 'mongoose'
-
 export async function GET(req: NextRequest) {
   try {
     const token = req.cookies.get('auth_token')?.value
@@ -27,6 +25,7 @@ export async function GET(req: NextRequest) {
 
     // 각 상품별로 리뷰 통계 및 목록 집계
     const productsWithReviews = await Promise.all(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       products.map(async (product: any) => {
         const productIdStr = product._id.toString()
         const reviews = await Review.find({ productId: productIdStr }).sort({ createdAt: -1 }).lean()

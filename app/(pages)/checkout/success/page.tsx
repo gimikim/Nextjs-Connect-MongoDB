@@ -58,6 +58,23 @@ export default function CheckoutSuccessPage() {
 
         setOrderAmount(Number(amount))
 
+        // 데이터 휘발 전, 구매한 상품을 로컬 장바구니에서도 제거
+        if (items && items.length > 0) {
+          const storedCart = localStorage.getItem('cart')
+          if (storedCart) {
+            try {
+              const currentCart = JSON.parse(storedCart)
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const purchasedIds = items.map((item: any) => item.id)
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const updatedCart = currentCart.filter((item: any) => !purchasedIds.includes(item.id))
+              localStorage.setItem('cart', JSON.stringify(updatedCart))
+            } catch (e) {
+              console.error('Failed to update local cart', e)
+            }
+          }
+        }
+
         // 데이터 휘발
         localStorage.removeItem('checkoutItems')
         localStorage.removeItem('checkoutFormData')

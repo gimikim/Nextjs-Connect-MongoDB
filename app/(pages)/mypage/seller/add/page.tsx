@@ -91,7 +91,9 @@ export default function SellerAddProductPage() {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700">상품 이미지 (로컬 파일 또는 외부 링크)</label>
+          <label className="mb-2 block text-sm font-semibold text-slate-700">
+            상품 이미지 (로컬 파일 또는 외부 링크)
+          </label>
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
             {/* 로컬 파일 업로드 버튼 (시각적으로 숨긴 input 태그와 연결) */}
             <label className="flex h-[3.15rem] cursor-pointer items-center justify-center rounded-xl border border-slate-300 bg-slate-50 px-5 text-[0.95rem] font-bold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600">
