@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import ProductGrid from './components/ProductGrid'
-import { products } from '../lib/data' // 별도의 모듈에 분리된 상품 데이터를 불러와서 재사용합니다.
 
 export default function Home() {
   return (
@@ -32,8 +31,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. 진열 상품 플로팅 컴포넌트 (Product Grid - Client Component) */}
-      <ProductGrid products={products} />
+      {/* 3. 진열 상품 및 메인 검색 컴포넌트 
+          더미 데이터(lib/data.ts)를 제거하고 직접 DB의 데이터를 가져오도록 합니다. */}
+      <ProductGrid />
 
       {/* 심플 푸터 */}
       <footer className="mt-10 border-t border-slate-100 bg-slate-50 py-12">

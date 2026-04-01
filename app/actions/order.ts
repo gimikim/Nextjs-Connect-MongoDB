@@ -32,7 +32,7 @@ export async function processOrder(orderData: any) {
     const discount = item.discount ? Number(item.discount) : 0
 
     return {
-      productId: Number(item.productId) || Date.now(),
+      productId: String(item.productId || Date.now()),
       name: String(item.name || 'CONNECT 상품'),
       brand: String(item.brand || 'CONNECT'),
       price: defaultPrice,
@@ -57,6 +57,21 @@ export async function processOrder(orderData: any) {
       status: '결제완료',
       paymentMethod: '카드결제',
     })
+
+    // 장바구니에서 구매한 상품 제거 (로그인한 유저)
+    if (userId && orderData.items && orderData.items.length > 0) {
+      const User = (await import('@/db/models/user')).default
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const purchasedCartItemIds = orderData.items.map((item: any) => item.id).filter(Boolean)
+
+      if (purchasedCartItemIds.length > 0) {
+        await User.findByIdAndUpdate(userId, {
+          $pull: {
+            cart: { id: { $in: purchasedCartItemIds } },
+          },
+        })
+      }
+    }
 
     // 반환 가능한 문자열/원시 타입으로 변환
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

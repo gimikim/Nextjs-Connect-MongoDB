@@ -30,7 +30,7 @@ export async function submitReview(formData: FormData) {
     await dbConnect()
 
     const orderId = formData.get('orderId') as string
-    const productId = Number(formData.get('productId'))
+    const productId = formData.get('productId') as string
     const rating = Number(formData.get('rating'))
     const content = formData.get('content') as string
     const imageFile = formData.get('image') as File | null
@@ -61,7 +61,7 @@ export async function submitReview(formData: FormData) {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const orderItem = order.items.find((item: any) => item.productId === productId)
+    const orderItem = order.items.find((item: any) => item.productId?.toString() === productId?.toString())
     if (!orderItem) {
       return { success: false, message: '주문 내역에 해당 상품이 존재하지 않습니다.' }
     }
@@ -93,7 +93,7 @@ export async function submitReview(formData: FormData) {
 }
 
 // 상품 상세 페이지에서 리뷰 데이터를 불러오는 함수
-export async function getReviews(productId: number) {
+export async function getReviews(productId: string) {
   try {
     await dbConnect()
 

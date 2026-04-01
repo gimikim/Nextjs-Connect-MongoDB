@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose'
 
 export interface IOrderItem {
-  productId: number
+  productId: string
   name: string
   brand: string
   price: number
@@ -28,7 +28,7 @@ export interface IOrder extends Document {
 }
 
 const OrderItemSchema = new Schema({
-  productId: { type: Number, required: true },
+  productId: { type: String, required: true },
   name: { type: String, required: true },
   brand: { type: String, required: false },
   price: { type: Number, required: true },
@@ -66,4 +66,3 @@ if (mongoose.models.Order) {
 }
 
 export default mongoose.model<IOrder>('Order', OrderSchema)
-

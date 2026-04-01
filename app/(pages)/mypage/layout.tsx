@@ -56,7 +56,7 @@ export default async function MyPageLayout({ children }: { children: React.React
                 </div>
               </div>
 
-              <MyPageNav />
+              <MyPageNav isBusiness={isBusiness} />
             </div>
           </aside>
 

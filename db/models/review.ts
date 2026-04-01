@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose'
 
 export interface IReview extends Document {
   userId: mongoose.Types.ObjectId | string
-  productId: number
+  productId: string
   orderId: string
   rating: number
   content: string
@@ -13,7 +13,7 @@ export interface IReview extends Document {
 const ReviewSchema = new Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    productId: { type: Number, required: true },
+    productId: { type: String, required: true },
     orderId: { type: String, required: true },
     rating: { type: Number, required: true, min: 1, max: 5 },
     content: { type: String, required: true },
