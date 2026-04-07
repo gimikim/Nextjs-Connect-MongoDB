@@ -9,7 +9,7 @@ export default function SellerEditProductPage({ params }: { params: { id: string
   const [loading, setLoading] = useState(false)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [fetching, setFetching] = useState(true)
-  
+
   const [formData, setFormData] = useState({
     name: '',
     brand: '',
