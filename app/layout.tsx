@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken'
 import LogoutButton from './components/LogoutButton'
 import CartCount from './components/CartCount'
 import Footer from './components/Footer'
+import HeaderSearch from './components/HeaderSearch'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -49,14 +50,14 @@ export default function RootLayout({
         {/* 통합 글로벌 내비게이션 바 */}
         <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-md">
           <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-10">
+            <div className="flex items-center gap-6 xl:gap-10">
               <Link
                 href="/"
-                className="text-2xl font-black tracking-tighter text-blue-600 transition-colors hover:text-blue-700"
+                className="shrink-0 text-2xl font-black tracking-tighter text-blue-600 transition-colors hover:text-blue-700"
               >
                 CONNECT
               </Link>
-              <nav className="hidden gap-6 text-[0.95rem] font-semibold text-slate-600 md:flex">
+              <nav className="hidden shrink-0 gap-6 text-[0.95rem] font-semibold text-slate-600 xl:flex">
                 <Link href="#" className="transition hover:text-black">
                   베스트
                 </Link>
@@ -71,6 +72,9 @@ export default function RootLayout({
                 </Link>
               </nav>
             </div>
+
+            {/* 헤더 중앙 검색창 */}
+            <HeaderSearch />
 
             <div className="flex items-center gap-6 text-[0.9rem] font-medium text-slate-600">
               {user ? (

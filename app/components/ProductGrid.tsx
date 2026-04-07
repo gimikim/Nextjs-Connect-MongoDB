@@ -26,9 +26,6 @@ export default function ProductGrid() {
   const [products, setProducts] = useState<DBProduct[]>([])
   const [loading, setLoading] = useState(true)
 
-  // 입력창의 값은 로컬 상태로 관리하여 타이핑 시 즉각 반영되게 합니다.
-  const [searchTerm, setSearchTerm] = useState(searchParam)
-
   const categories = ['전체', '의류', '신발', '가전', '리빙']
 
   // 등록된 실제 상품 목록을 서버(MongoDB)에서 불러옵니다.
@@ -56,21 +53,8 @@ export default function ProductGrid() {
 
   // URL 파라미터(search, category)가 변경될 때마다 데이터를 다시 불러오고 상태를 동기화합니다.
   useEffect(() => {
-    setSearchTerm(searchParam)
     fetchProducts(searchParam, categoryParam)
   }, [searchParam, categoryParam])
-
-  // 검색 폼을 제출했을 때 URL을 업데이트합니다.
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    const params = new URLSearchParams(searchParams.toString())
-    if (searchTerm) {
-      params.set('search', searchTerm)
-    } else {
-      params.delete('search')
-    }
-    router.push(`/?${params.toString()}`)
-  }
 
   // 카테고리를 변경했을 때 URL을 업데이트합니다.
   const handleCategoryChange = (cat: string) => {
@@ -81,8 +65,6 @@ export default function ProductGrid() {
       params.set('category', cat)
     }
 
-    // 로컬 검색어 입력창도 비워줍니다.
-    setSearchTerm('')
     router.push(`/?${params.toString()}`)
   }
 
@@ -129,23 +111,6 @@ export default function ProductGrid() {
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">🔥 실시간 추천 아이템</h2>
             <p className="mt-2 font-medium text-slate-500">지금 사용자들에게 가장 사랑받는 베스트셀러</p>
           </div>
-
-          {/* 상품 검색 입력 폼 영역 */}
-          <form onSubmit={handleSearch} className="flex w-full max-w-md gap-2 md:w-auto">
-            <input
-              type="text"
-              placeholder="원하시는 상품을 검색해보세요"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-full border border-slate-300 px-5 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-            <button
-              type="submit"
-              className="whitespace-nowrap rounded-full bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-blue-700"
-            >
-              상품 검색
-            </button>
-          </form>
         </div>
 
         {loading ? (
