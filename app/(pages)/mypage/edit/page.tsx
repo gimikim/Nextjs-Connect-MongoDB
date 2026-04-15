@@ -7,7 +7,7 @@ import User from '@/db/models/user'
 import EditProfileClient from './EditProfileClient'
 
 export default async function EditProfilePage() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('auth_token')?.value
 
   if (!token) redirect('/auth?type=login')

@@ -6,8 +6,9 @@ import dbConnect from '@/db/dbConnect'
 import Order from '@/db/models/order'
 import ReviewButton from '@/app/components/ReviewButton'
 
-export default async function OrderDetailPage({ params }: { params: { id: string } }) {
-  const cookieStore = cookies()
+export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const cookieStore = await cookies()
   const token = cookieStore.get('auth_token')?.value
   if (!token) redirect('/auth?type=login')
 
@@ -21,7 +22,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
   await dbConnect()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const order = (await Order.findOne({ _id: params.id, userId: decoded.userId }).lean()) as any
+  const order = (await Order.findOne({ _id: id, userId: decoded.userId }).lean()) as any
 
   if (!order) {
     return <div className="p-20 text-center text-xl font-bold">주문 내역을 찾을 수 없습니다.</div>

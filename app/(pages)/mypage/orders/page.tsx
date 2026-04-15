@@ -9,7 +9,7 @@ import { seedMockOrders } from '@/lib/seedOrders'
 import OrderListClient from './OrderListClient'
 
 export default async function OrdersPage() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('auth_token')?.value
   if (!token) redirect('/auth?type=login')
 

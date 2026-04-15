@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { notFound, useRouter } from 'next/navigation'
 import ProductReviewSection from '@/app/components/ProductReviewSection'
 import { syncCartToDB } from '@/app/actions/cart'
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
+export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
+  const unwrappedParams = use(params)
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [product, setProduct] = useState<any>(null)
@@ -20,7 +21,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   useEffect(() => {
     async function fetchProduct() {
       try {
-        const res = await fetch(`/api/products/${params.id}`)
+        const res = await fetch(`/api/products/${unwrappedParams.id}`)
         if (!res.ok) {
           throw new Error('NotFound')
         }
@@ -43,7 +44,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
       }
     }
     fetchProduct()
-  }, [params.id])
+  }, [unwrappedParams.id])
 
   if (loading) {
     return (

@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function processOrder(orderData: any) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('auth_token')?.value
   let userId = null
 

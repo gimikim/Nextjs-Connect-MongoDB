@@ -8,7 +8,7 @@ import LogoutButton from '@/app/components/LogoutButton'
 import MyPageNav from '@/app/components/MyPageNav'
 
 export default async function MyPageLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('auth_token')?.value
 
   if (!token) {

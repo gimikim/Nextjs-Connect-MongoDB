@@ -6,7 +6,7 @@ import dbConnect from '@/db/dbConnect'
 import User from '@/db/models/user'
 
 export default async function MyPage() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('auth_token')?.value
 
   if (!token) {

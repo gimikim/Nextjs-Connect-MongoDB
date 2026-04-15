@@ -6,7 +6,7 @@ import CheckoutClient from './CheckoutClient'
 import { redirect } from 'next/navigation'
 
 export default async function CheckoutPage() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('auth_token')?.value
 
   if (!token) {

@@ -10,7 +10,7 @@ import path from 'path'
 import { products } from '@/lib/data'
 
 export async function submitReview(formData: FormData) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('auth_token')?.value
 
   if (!token) {
@@ -101,7 +101,7 @@ export async function getReviews(productId: string) {
     await import('@/db/models/user')
 
     // 현재 사용자 확인 (isMine 처리를 위함)
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const token = cookieStore.get('auth_token')?.value
     let currentUserId = null
     if (token) {
@@ -152,7 +152,7 @@ export async function getReviews(productId: string) {
 
 // 본인이 작성한 리뷰만 모아보기
 export async function getMyReviews() {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('auth_token')?.value
   if (!token) return { success: false, message: '로그인이 필요합니다.' }
 
@@ -194,7 +194,7 @@ export async function getMyReviews() {
 
 // 지정된 리뷰 삭제하기
 export async function deleteReview(reviewId: string) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('auth_token')?.value
   if (!token) return { success: false, message: '로그인이 필요합니다.' }
 
@@ -245,7 +245,7 @@ export async function deleteReview(reviewId: string) {
 
 // 지정된 리뷰 수정하기
 export async function updateReview(formData: FormData) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const token = cookieStore.get('auth_token')?.value
   if (!token) return { success: false, message: '로그인이 필요합니다.' }
 
